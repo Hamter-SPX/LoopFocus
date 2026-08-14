@@ -61,3 +61,30 @@
 2. **Checkpoint/State files** (resume ได้)
 3. **Fix Policy + ถามก่อนแก้จุดอื่น**
 4. **Hypothesis Ledger เป็นไฟล์มาตรฐานกลาง** (`.loopfocus/ledger.md`)
+
+---
+
+# GREEN Results (รันพร้อมสกิล) + REFACTOR
+
+วันที่: 2026-08-15
+
+## เปรียบเทียบ RED vs GREEN
+
+| Scenario | RED (ไม่มีสกิล) | GREEN (มีสกิล) |
+|---|---|---|
+| S1 Drift | แก้ session leak + ปุ่มสีโดยไม่ถาม | **ถามก่อน** (Fix Policy) + เก็บ ledger/state + verify PASS |
+| S2 Retry | 3 retries reworded ก่อนเจอ root cause (attempt 4) | **0 retries** — เจอ root cause ใน hypothesis ที่ 2 (inspect dependency ตั้งแต่ EXPLORE) |
+| S3 Reset | agent ใหม่เริ่มจากศูนย์ ทำซ้ำ/วินิจฉัยซ้ำ | **agent ใหม่อ่าน .loopfocus/state.md แล้ว resume ใน ~30 วิ โดยไม่แก้โค้ดซ้ำ** |
+| S4 Evidence | ไม่มโน (ผ่าน) แต่ไม่บันทึกอะไรไว้ | ไม่มโน + บันทึก state + escalate พร้อมหลักฐาน + verify FAIL อย่างซื่อสัตย์ |
+
+## Loophole ที่เจอระหว่าง GREEN (REFACTOR)
+
+S4-green: agent เขียน state เป็น `## UNKNOWN` (markdown heading ไม่มี colon) → verify script regex `^UNKNOWN:` ไม่เห็น → PASS ปลอม (แต่ agent เองจับได้แล้ว self-reject)
+
+**Fix**: regex เปลี่ยนเป็น `^#{0,6}[[:space:]]*UNKNOWN` (จับ heading form ได้) + เพิ่ม T4 ใน test-verify.sh กัน evasion นี้
+
+## สรุป REFACTOR
+
+- loopfocus-verify.sh: แข็งขึ้น 2 จุด (UNKNOWN/NEXT heading evasion)
+- SKILL.md: ไม่ต้องเพิ่ม counter — ไม่มี rationalization ใหม่เกินที่เขียนไว้แล้ว
+- ทุก scenario ผ่าน GREEN (comply 100%)

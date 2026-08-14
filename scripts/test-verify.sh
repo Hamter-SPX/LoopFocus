@@ -17,5 +17,9 @@ printf 'hypothesis: fixed\nactual result: tests pass\n' > "$TMP/.loopfocus/ledge
 (cd "$TMP" && "$VF" >/dev/null 2>&1)
 [ $? -eq 0 ] || { echo "T3 FAIL: should pass with clean state"; fail=1; }
 
+printf '## UNKNOWN\n- blocker evading regex\n' > "$TMP/.loopfocus/state.md"
+(cd "$TMP" && "$VF" >/dev/null 2>&1)
+[ $? -ne 0 ] || { echo "T4 FAIL: should fail on markdown-heading blocker evasion"; fail=1; }
+
 [ $fail -eq 0 ] && echo "ALL PASS"
 exit $fail

@@ -18,11 +18,11 @@ pass() {
 
 [ -f "$STATE" ] || fail "completion" "no .loopfocus/state.md recorded" "record_state"
 
-if grep -qE '^UNKNOWN:' "$STATE" && ! grep -qE '^UNKNOWN: none$' "$STATE"; then
+if grep -E '^#{0,6}[[:space:]]*UNKNOWN' "$STATE" | grep -vqE '^#{0,6}[[:space:]]*UNKNOWN:[[:space:]]*none$'; then
   fail "completion" "known blockers remain" "resolve_blockers"
 fi
 
-if grep -qE '^NEXT:' "$STATE" && ! grep -qE '^NEXT: (none|done)$' "$STATE"; then
+if grep -E '^#{0,6}[[:space:]]*NEXT' "$STATE" | grep -vqE '^#{0,6}[[:space:]]*NEXT:[[:space:]]*(none|done)$'; then
   fail "completion" "next action still pending" "finish_next_action"
 fi
 
