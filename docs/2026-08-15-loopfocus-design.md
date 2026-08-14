@@ -34,17 +34,37 @@ LoopFocus คือสกิลวินัย (discipline skill) ที่ท�
 
 ```
 LoopFocus/
-├── SKILL.md                        # ใจกลางสกิล — กฎทั้งหมด + การอ้างถึงระบบย่อย
-├── docs/
-│   └── 2026-08-15-loopfocus-design.md   # สเปคนี้
-├── scripts/
-│   ├── loopfocus-verify.sh         # Tool: ต้องรันก่อนจบงานทุกครั้ง
-│   ├── loop-genome.py (หรือ .sh)   # Tool: บันทึก/อ่าน Loop Genome + Failure Memory
-│   ├── normalize-signal.py         # Tool: Signal Normalizer (tool output → JSON มาตรฐาน)
-│   ├── tool-discovery.sh           # Tool: Auto-Discovery (สร้าง Tool Map จาก repo)
-│   └── ci/
-│       ├── github-actions.yml      # เทมเพลต CI
-│       └── gitlab-ci.yml           # เทมเพลต CI
+├── SKILL.md                        # Router กระชับ — Core Laws, layers, modes, red flags, completion contract
+├── references/                     # ระบบเชิงลึก 14 ไฟล์ (61 ระบบ จัดตามชั้นวินัย)
+│   ├── state-machine.md            #   states, transitions, side-quest, focus depth
+│   ├── gate-engine.md              #   26 gates, profiles, DAG, schemas
+│   ├── loop-control.md             #   strategy ladder, no-progress tax, oscillation, entropy
+│   ├── reasoning-discipline.md     #   hypothesis, confidence, counterfactual, pre-mortem, commitment levels
+│   ├── goal-discipline.md          #   goal lock, intent, scope firewall, invariants, minimum intervention
+│   ├── progress-discipline.md      #   progress proof/delta, DoD graph, regression sentinel, state integrity
+│   ├── state-and-memory.md         #   checkpoints, recovery capsule, branch-and-recover, handoff, genome
+│   ├── knowledge-discipline.md     #   half-life, conflict resolver, distillation, objective compression
+│   ├── toolbus.md                  #   9 tools + signal normalizer + adaptive CI
+│   ├── security-mode.md            #   M3: 7-category checklist, severity taxonomy
+│   ├── build-mode.md               #   M4: intent anchor, DoD, slices
+│   ├── canvas.md                   #   architecture drawing rules
+│   ├── predictive-analysis.md      #   touch map, risk factors, confidence levels
+│   └── verification-and-claim-governance.md
+├── flow/                           # 6 flows: Why→When→Steps→Evidence gates→Anti-patterns
+│   ├── README.md                   #   การเลือก flow
+│   ├── bug-fix-flow.md
+│   ├── feature-build-flow.md
+│   ├── security-audit-flow.md
+│   ├── review-flow.md
+│   └── recovery-flow.md
+├── schemas/                        # JSON schemas: signal, gate-result, genome
+├── templates/                      # state.md / ledger.md / dod.md templates
+├── prompts/                        # m3-security-mode.md, m4-build-mode.md
+├── scripts/                        # 8 tools + 4 test suites + CI templates
+│   ├── tool-discovery.sh, fast-gate.sh, gate-runner.sh, loopfocus-verify.sh
+│   ├── normalize-signal.js, loop-genome.js, git-state.js, ci-controller.js
+│   └── ci/github-actions.yml, gitlab-ci.yml
+└── docs/                           # สเปค + plans + baseline results
 ```
 
 ติดตั้งที่:
@@ -607,5 +627,5 @@ Success criteria: agent ทำตาม Hard Rules + state machine ภายใ�
 
 ## 12. สถานะการรวบรวมระบบ
 
-- จำนวนระบบทั้งหมด ณ ปัจจุบัน: **61 ระบบ + 4 เสา + Gate Engine (26 gates + 4 profiles + DAG) + ToolBus (9 tools + Signal Normalizer + Adaptive CI) + Identity**
-- สถานะ: เนื้อหาครบถ้วนแล้ว (v6) — พร้อมเขียน implementation plan
+- จำนวนระบบทั้งหมด: **61 ระบบ + 4 เสา + Gate Engine (26 gates + 4 profiles + DAG) + ToolBus (9 tools + Signal Normalizer + Adaptive CI) + Identity**
+- สถานะ: **IMPLEMENTED** — โครงสร้างแบบ FVEP (SKILL.md router + references/ 14 ไฟล์ + flow/ 6 docs + schemas/ + templates/ + prompts/ + scripts/) ติดตั้งที่ `~/.config/opencode/skills/` และ `~/.agents/skills/` ผ่านการทดสอบ TDD (RED/GREEN/REFACTOR) + E2E scenarios ครบทุก phase
