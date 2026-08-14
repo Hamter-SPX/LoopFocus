@@ -98,6 +98,61 @@ Before presenting any conclusion, ask: "Can I point to the evidence?" If no — 
 | "Done" while a known blocker remains | Completion gate: blockers = 0 before READY_TO_FINISH |
 | Fixing extra issues without asking | Fix policy: ask the user first, report + propose instead of silently expanding |
 
+## Gate Engine
+
+Gates are checkpoints every action must pass. The Focus State Machine is the rhythm; gates are the checkpoints on every transition. Never skip a state while a relevant gate is failing.
+
+### Gate Profiles (change automatically)
+
+| Profile | Gates | When |
+|---|---|---|
+| LIGHT | entry, build, test, completion | simple task |
+| NORMAL | LIGHT + static, regression, evidence-freshness, checkpoint | many files / architecture |
+| DEEP | NORMAL + artifact, and reasoning gates below get strict | repeated failure / high impact |
+| Near completion | completion gate expands scope | close to done |
+
+Choose the profile when locking the goal. Record it in `.loopfocus/profile`. Escalate the profile (LIGHT→NORMAL→DEEP) when failures repeat or impact is high. Never force a heavy profile on a trivial task (Effort Elasticity).
+
+### Machine Gates (run `scripts/gate-runner.sh`)
+
+- **entry** — state.md recorded with a goal (all profiles)
+- **build** — build command passes (configured via `.loopfocus/gates.conf`)
+- **static** — lint/typecheck passes
+- **test** — test command passes
+- **regression** — passing-test count did not drop vs `.loopfocus/metrics`
+- **evidence-freshness** — no code file changed after state.md was last updated
+- **checkpoint** — git repo exists (rollback point available)
+- **artifact** — evidence file produced, non-empty
+- **completion** — UNKNOWN: none + NEXT: none/done + ledger has actual result
+
+Every gate prints one JSON line: `{"gate","status","attempt","reason","blocking","next_action"}`. FAIL with `blocking:true` means stop and handle `next_action` before continuing. Exit code 1 = at least one blocking FAIL.
+
+### Judgment Gates (self-check before acting — record the decision in the ledger)
+
+- **context gate** — do I have enough context for this action? If I have not read the files involved, block myself before editing architecture.
+- **assumption gate** — high-impact assumptions need evidence or a test first. "This API never returns null" is not evidence unless the contract was checked.
+- **plan gate** — large change radius needs a written approach before executing.
+- **mutation gate** — does this edit serve the goal? Does it expand scope? How reversible is it?
+- **change-radius gate** — a small goal touching 30 files → hold and reassess.
+- **dependency gate** — adding/removing/upgrading a dependency needs a goal-linked reason, not convenience.
+- **progress gate** — every loop needs measurable delta or information gain. Neither = NO_PROGRESS.
+- **repeat gate** — a failed approach cannot be retried without new evidence changing the hypothesis.
+- **stuck gate** — same failure class over threshold → no plain retry; mutate strategy.
+- **oscillation gate** — A passes/B fails → A fails/B passes → … → stop fixing symptoms; find the shared root cause.
+- **scope gate** — classify every action Required / Supporting / Optional / Unrelated. Unrelated is blocked.
+- **runtime/browser/performance gates** — change must run, key interactions must work, hot-path changes must not regress latency/memory abnormally.
+- **ci gates** — local fast gate before CI; separate code failure from flaky/environment failure before touching code; near completion, expand to full CI.
+- **recovery gate** — after rollback/reset/crash: restore goal + known truth + attempts + failures before continuing.
+- **checkpoint gate** — before structural/risky changes: stable state + rollback point first.
+
+### Gate DAG (per project, not a fixed chain)
+
+```
+entry → context → mutation → (build / runtime / browser) → test → regression → progress → ci → completion
+```
+
+Backend has no browser gate. Docs-only changes may have no build gate. Discover the project's gates from its tools (Phase 5 Tool Auto-Discovery).
+
 ## Red Flags — STOP and return to the state machine
 
 - Editing files before reading them
