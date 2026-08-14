@@ -1,0 +1,52 @@
+# LoopFocus CI template — copy to .github/workflows/loopfocus-ci.yml
+# ปรับ commands ตาม gates.conf ของโปรเจกต์ (สร้างด้วย scripts/tool-discovery.sh)
+name: LoopFocus CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  fast-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup
+        run: bash scripts/tool-discovery.sh || true
+      - name: Build
+        run: ${{ env.BUILD_CMD }}
+        env:
+          BUILD_CMD: echo "no build" # เปลี่ยนเป็น build command ของโปรเจกต์
+        continue-on-error: true
+      - name: Static
+        run: ${{ env.STATIC_CMD }}
+        env:
+          STATIC_CMD: echo "no static"
+        continue-on-error: true
+      - name: Test
+        run: ${{ env.TEST_CMD }}
+        env:
+          TEST_CMD: echo "no test"
+
+  regression-sentinel:
+    needs: fast-gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Record baseline
+        run: |
+          mkdir -p .loopfocus
+          if [ -f .loopfocus/metrics ]; then grep -E '^test_count=' .loopfocus/metrics || true; fi
+
+  security:
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dependency audit
+        run: npm audit --audit-level=high 2>/dev/null || pip-audit 2>/dev/null || true
+      - name: Secret scan
+        run: |
+          git log -p | grep -Eiq '(api[_-]?key|secret|password|token)[[:space:]]*=' \
+            && echo "::warning::Possible secrets in git history" || true

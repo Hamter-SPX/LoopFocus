@@ -1,0 +1,35 @@
+# LoopFocus CI template — copy to .gitlab-ci.yml
+# ปรับ commands ตาม gates.conf ของโปรเจกต์
+stages:
+  - fast
+  - verify
+  - security
+
+variables:
+  BUILD_CMD: 'echo "no build"'
+  STATIC_CMD: 'echo "no static"'
+  TEST_CMD: 'echo "no test"'
+
+fast-gate:
+  stage: fast
+  script:
+    - bash scripts/tool-discovery.sh || true
+    - eval "$BUILD_CMD"
+    - eval "$STATIC_CMD"
+    - eval "$TEST_CMD"
+  allow_failure: false
+
+regression-sentinel:
+  stage: verify
+  script:
+    - mkdir -p .loopfocus
+    - '[ -f .loopfocus/metrics ] && grep -E "^test_count=" .loopfocus/metrics || true'
+
+security:
+  stage: security
+  script:
+    - npm audit --audit-level=high 2>/dev/null || pip-audit 2>/dev/null || true
+    - 'git log -p | grep -Eiq "(api[_-]?key|secret|password|token)[[:space:]]*=" && echo "WARNING: possible secrets in git history" || true'
+  only:
+    - main
+    - merge_requests
