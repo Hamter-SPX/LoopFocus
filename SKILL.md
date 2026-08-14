@@ -211,6 +211,83 @@ Predict where bugs will emerge when a new feature or change lands. Evidence-base
 3. **Confidence levels:** each prediction is Known (verified by reading) / Likely (pattern + partial evidence) / Unknown (insufficient evidence — say so). Never present Likely as Known.
 4. **Output:** risk list per module + prevention suggestion (extra test, boundary check, contract pin). Record in the ledger so post-feature bugs can be compared against predictions.
 
+## ToolBus
+
+All tools feed one brain. Every tool output goes through the Signal Normalizer before it reaches a decision.
+
+### Signal Normalizer
+
+Wrap every verification result into one standard signal instead of reading raw output:
+
+```bash
+node scripts/normalize-signal.js --source local:test --status fail \
+  --previous-failures 17 --current-failures 3 --failure-class webkit-nav \
+  --new-regressions 0 --evidence-fresh true --attempt 12
+```
+
+Rules it encodes:
+- Failures dropping (17→3) with no new regressions = **progress: true** → CONTINUE, even though status is still fail. Never mutate strategy when converging.
+- Flat failures or rising failures = **progress: false** → MUTATE (no reworded retries).
+- New regressions > 0 = ROLLBACK (previously passing things broke).
+
+### Tool Discovery (first step in any repo)
+
+```bash
+bash scripts/tool-discovery.sh
+```
+
+Detects npm/pytest/cargo/go/CI/Docker/Playwright and writes `.loopfocus/gates.conf` (feeds gate-runner) + `.loopfocus/tool-map.md`. Run it before locking the goal. A gate without a configured command is SKIP, never silently assumed.
+
+### Local Fast Gate (before CI — never wait for CI blindly)
+
+```bash
+bash scripts/fast-gate.sh
+```
+
+Runs build → static → test from gates.conf, stops at the first failure (a failed build means tests are pointless this loop). CI Controller applies the same ordering remotely.
+
+### Git State Engine (evidence + parallel attempts)
+
+- `node scripts/git-state.js` — branch, last commits, staged/unstaged/untracked files, diff stat (State Integrity input).
+- Worktrees for branching attempts: `node scripts/git-state.js worktree-new attempt-b` creates an isolated worktree — run competing hypotheses in separate worktrees, compare results, keep the winner (Branch-and-Recover).
+
+### CI Controller (smart, not blind)
+
+```bash
+node scripts/ci-controller.js runs
+node scripts/ci-controller.js failed-jobs <run-id>     # which jobs failed — CI Matrix Brain: focus the failure domain only
+node scripts/ci-controller.js logs <run-id>            # failed job logs
+node scripts/ci-controller.js rerun-failed <run-id>    # rerun ONLY failed jobs — never the whole matrix for one browser failure
+node scripts/ci-controller.js artifacts <run-id>
+```
+
+Separate code failure from flaky/environment failure before touching code (CI Reliability). WebKit-only failure → fix/rerun the WebKit shard, not the whole project.
+
+### Browser/E2E Driver (Playwright as a sensor)
+
+For UI work: `npx playwright test` after every visual change; use `--project` per browser (Chromium/Firefox/WebKit) to match CI Matrix Brain; capture screenshots (`--screenshot`) into artifacts so evidence is attached to the attempt. Loop: render → interact → screenshot → compare → normalize-signal.
+
+### Build Sandbox (Docker for risky changes)
+
+Dangerous or experimental changes run in a container first: build/test inside `docker run` against the same image CI uses; only when it passes, bring the change back into the workspace. Never test environment-destroying changes in the working tree.
+
+### Runtime Observer (OpenTelemetry when available)
+
+If the project emits OTel traces/metrics/logs, read them as runtime evidence — tests passing while latency jumps 120ms → 1.8s is a regression the test suite cannot see. Normalize it: `--source runtime:otel --status fail --failure-class latency`.
+
+### Artifact/Evidence Collector
+
+Every tool result must be saved with its attempt number before it counts as evidence: test report, screenshot, CI log, diff. Attach them in the ledger entry (`evidence: <path>`). A claim without an artifact path is not evidence.
+
+### Adaptive CI (verification radius grows with confidence)
+
+```
+Code Changed → Impact Detection → Fast Checks → Affected Tests
+→ Relevant CI Matrix → PASS? → NO: loop (fix)   YES: Broader CI → Full Gate
+```
+
+Small work does not fire full CI every loop. Near completion, expand to the full gate. Always end with full CI on the final change.
+
 ## Red Flags — STOP and return to the state machine
 
 - Editing files before reading them
