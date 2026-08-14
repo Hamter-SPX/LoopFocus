@@ -166,6 +166,51 @@ node scripts/loop-genome.js record --class <problem-class> --strategy <name> \
 - Before starting a new problem, check history: `node scripts/loop-genome.js query --class <similar-class>` — if a strategy family already won for this problem class, start there instead of thinking from zero.
 - The genome lives in `.loopfocus/genome.json` (per repo, or `~/.loopfocus/` outside a repo). A new agent or fresh context must query it before re-attempting anything.
 
+## Modes
+
+Invoked on request. Default behaviors stay on; a mode adds its own discipline.
+
+### M3 — Security Mode (trigger: "security review", "audit", "scan", "vulnerab", "CVE", "secure")
+
+1. **Coverage checklist — never skip a category** (go through ALL, even if you expect nothing):
+   - Injection (SQL, NoSQL, command, template, path traversal)
+   - AuthN/AuthZ (hardcoded secrets, weak comparison/type juggling, missing auth, IDOR)
+   - Secret leakage (hardcoded keys, .env committed, tokens in logs)
+   - Dependency risk (npm audit / pip-audit / cargo audit / govulncheck — run the project's audit tool)
+   - Transport/config (TLS, headers, CORS, permissions, rate limiting)
+   - Data exposure (PII, sensitive endpoints unauthenticated, mass assignment)
+   - Business logic flaws
+2. **Evidence first.** Every finding = file:line + a reproduction or the audit tool's output. Unverified suspicion is recorded as UNKNOWN, not as a finding.
+3. **Severity taxonomy:** Critical / High / Medium / Low / Info — with exploitability (remote? unauth?) as the deciding factor, not gut feel.
+4. **Fix policy applies:** propose fixes, ask the user which to apply. Never silently fix security issues beyond the goal unless provably safe and reversible.
+5. **Record everything** in `.loopfocus/ledger.md` + state.md + genome (`--class security-<area>`).
+
+### M4 — Build Mode (trigger: "build", "feature", "add", "implement new")
+
+1. **LOCK first:** restate the requirement in your own words (Intent Anchor) + list MUST/MUST-NOT invariants before writing anything.
+2. **Design before code:** Canvas the architecture (below) + Predictive analysis on the touched area.
+3. **DoD Graph:** write the completion conditions as a chain (feature works → tests pass → no regression → verify → done) into `.loopfocus/dod.md` at the start.
+4. **Write → verify loop:** smallest working slice first, run gates every loop, update state.md each milestone.
+5. **No scope creep:** new ideas go to the report list (SkillFocus), not into the code, until the user approves.
+
+## Canvas (available anytime)
+
+When the task needs structural explanation — current architecture, a proposed feature structure, or impact of a change — draw it before implementing:
+
+1. Draw in chat: Mermaid or ASCII — modules/boxes + edges = data flow or dependency. Label every edge with what travels on it.
+2. Mark on the diagram: where the change goes, what else touches it (Predictive), what must not break (invariants).
+3. If the user approves, save the diagram + explanation as `docs/loopfocus-canvas-<topic>.md` in the repo (committed).
+4. Never draw boxes for classes/files you have not actually read — a canvas is evidence-based like everything else.
+
+## Predictive Analysis (ก่อน feature ใหม่/ก่อนแก้จุดที่เชื่อมเยอะ)
+
+Predict where bugs will emerge when a new feature or change lands. Evidence-based — cite the actual code:
+
+1. **Touch map:** which modules the change touches, and which depend on them (search callers).
+2. **Risk factors, with evidence:** coupling (how many callers), complexity (long functions/branches), churn (recent git history of the file), missing tests (coverage of the touched paths), concurrency (shared mutable state), data flow (inputs that flow into the change).
+3. **Confidence levels:** each prediction is Known (verified by reading) / Likely (pattern + partial evidence) / Unknown (insufficient evidence — say so). Never present Likely as Known.
+4. **Output:** risk list per module + prevention suggestion (extra test, boundary check, contract pin). Record in the ledger so post-feature bugs can be compared against predictions.
+
 ## Red Flags — STOP and return to the state machine
 
 - Editing files before reading them
