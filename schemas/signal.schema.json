@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "LoopFocus Signal",
+  "description": "Normalized tool-output signal — the only shape the Progress Engine consumes (scripts/normalize-signal.js)",
+  "type": "object",
+  "required": ["attempt", "source", "status", "previous_failures", "current_failures", "delta", "new_regressions", "evidence_fresh", "progress", "next_action"],
+  "properties": {
+    "attempt": { "type": "integer", "description": "loop/attempt counter from .loopfocus/metrics" },
+    "source": { "type": "string", "description": "e.g. local:test, ci:e2e, runtime:otel" },
+    "status": { "enum": ["pass", "fail", "partial"] },
+    "previous_failures": { "type": "integer" },
+    "current_failures": { "type": "integer" },
+    "delta": { "type": "string", "description": "signed change, e.g. +14, -3, +0" },
+    "failure_class": { "type": "string", "description": "stable label for the failure domain, e.g. webkit-nav" },
+    "new_regressions": { "type": "integer" },
+    "evidence_fresh": { "type": "boolean" },
+    "progress": { "type": "boolean", "description": "current < previous AND no regressions AND fresh" },
+    "next_action": { "enum": ["continue", "mutate", "rollback"] }
+  }
+}

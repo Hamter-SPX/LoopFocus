@@ -1,0 +1,18 @@
+# .loopfocus/ledger.md — LoopFocus hypothesis + gate decisions ledger
+# Append one H<n> block per attempt. Never edit an old block; add a new one.
+
+## H1
+- Hypothesis: <what I think the cause is>
+- Test plan: <how I will prove or refute it>
+- Expected result: <what I predict>
+- Actual result: <what happened — REQUIRED line: start with "actual result:">
+- Verdict: confirmed | refuted
+
+## Gate decisions
+- gate: <name> | decision: allow|block | why: <reason linked to goal>
+
+## Assumptions
+- A1: <assumption> | used-by: <decision/edit> | status: unverified
+
+## Decisions
+- <date> <decision> | alternatives: <what lost and why> | reopen-if: <evidence>

@@ -1,0 +1,9 @@
+# .loopfocus/dod.md — Definition-of-Done graph
+# Written at LOCK (M4 requires it). Each node: condition + evidence command.
+# All nodes true = done. Incomplete chain = not done.
+
+feature works    ← <command that proves the feature behaves as required>
+tests pass       ← <test command>
+no regression    ← <regression check command / gate-runner>
+verify           ← bash scripts/loopfocus-verify.sh
+done             ← all above true + user questions answered

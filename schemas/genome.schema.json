@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "LoopFocus Genome",
+  "description": "Loop Genome storage format (.loopfocus/genome.json) — evolution history per problem class",
+  "type": "object",
+  "additionalProperties": {
+    "type": "object",
+    "required": ["attempts", "strategies", "winner"],
+    "properties": {
+      "attempts": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["n", "strategy", "result", "delta", "reason", "hypothesis"],
+          "properties": {
+            "n": { "type": "integer" },
+            "strategy": { "type": "string" },
+            "result": { "enum": ["fail", "partial", "success"] },
+            "delta": { "type": "number" },
+            "reason": { "type": "string" },
+            "hypothesis": { "type": "string" },
+            "at": { "type": "string", "format": "date-time" }
+          }
+        }
+      },
+      "strategies": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "object",
+          "required": ["fails", "successes", "banned"],
+          "properties": {
+            "fails": { "type": "integer" },
+            "successes": { "type": "integer" },
+            "banned": { "type": "boolean", "description": "auto-ban: fails >= 2 and successes == 0" }
+          }
+        }
+      },
+      "winner": { "type": ["string", "null"], "description": "strategy with the most successes" }
+    }
+  }
+}

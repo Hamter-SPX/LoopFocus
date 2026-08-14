@@ -11,284 +11,122 @@ LoopFocus is the execution control discipline for agents. Every loop must have a
 
 **Violating the letter of the rules is violating the spirit of the rules.**
 
-## When to Use
-
-Use on EVERY development task: bug fix, feature build, code review, refactor, security audit. No exceptions.
-
-## The Focus State Machine
-
-Every task runs through these states. Move to the next state only when the current one is complete:
-
-```
-LOCK        Lock Goal + constraints + invariants (write them down)
-  ↓
-EXPLORE     Read the repo before touching anything. Evidence first.
-  ↓
-HYPOTHESIZE Write hypothesis + test plan into the ledger before acting
-  ↓
-EXECUTE     Act only at the allowed Commitment Level
-  ↓
-OBSERVE     Collect actual results: errors, diffs, test output, metrics
-  ↓
-MEASURE     Progress Delta? (numbers, not feelings)
-  ↓
- ┌─ Progress → CONTINUE (next loop)
- ├─ Drift    → REFOCUS (back to Goal)
- ├─ Stuck    → MUTATE (change strategy, never retry same approach)
- ├─ Regress  → ROLLBACK (restore last passing checkpoint)
- └─ Blocked  → ESCALATE (report to user with evidence)
+```text
+LOCK goal → EXPLORE evidence → HYPOTHESIZE with a ledger
+→ EXECUTE at the allowed commitment level → OBSERVE actual results
+→ MEASURE progress delta → CONTINUE / REFOCUS / MUTATE / ROLLBACK / ESCALATE
+→ verify through the Gate Engine → record in the Loop Genome → FINISH with evidence
 ```
 
-## Hard Rules — Never Violate
+## Core Laws
 
 1. Never repeat a failed approach without new evidence.
 2. Never expand scope without linking it to the main goal.
 3. Never discard a passing state without a rollback point.
 4. Never claim progress without measurable delta.
 5. Never declare completion while known blockers remain.
+6. Never present a conclusion you cannot point at evidence for.
+7. Never ask the user to choose between unmeasured options.
 
-## Always-On Behaviors (apply to every task, no mode needed)
+## How the Discipline Layers Work
+
+| Layer | Role | Where |
+|---|---|---|
+| **Focus State Machine** | The rhythm — states every task walks through | `references/state-machine.md` |
+| **Gate Engine** | The checkpoints — every transition is gated | `references/gate-engine.md` |
+| **Loop Control** | The brakes — anti-retry, anti-oscillation, convergence | `references/loop-control.md` |
+| **Reasoning Discipline** | The mind — hypotheses, uncertainty, counterfactuals | `references/reasoning-discipline.md` |
+| **Goal Discipline** | The anchor — intent, scope, constraints, dependencies | `references/goal-discipline.md` |
+| **State & Memory** | The survival kit — checkpoints, recovery, handoff | `references/state-and-memory.md` |
+| **Knowledge Discipline** | The freshness — half-lives, conflicts, distillation | `references/knowledge-discipline.md` |
+| **ToolBus** | The sensors — tools feeding one normalized signal | `references/toolbus.md` |
+
+For a fast path through a common task, start at `flow/README.md` and follow the flow that matches the work: bug fix, feature build, security audit, review, or recovery.
+
+## Modes
+
+Every task runs in a mode. A mode is a contract: what may be done, what gates produce its evidence, what must be true before it closes. Default behaviors (state machine, ledger, gates, SkillFocus) apply in every mode.
+
+| Mode | Trigger words | Extra discipline | Reference |
+|---|---|---|---|
+| **M3 — Security** | security, audit, scan, vulnerab, CVE, secure | 7-category coverage checklist, severity taxonomy, exploitability evidence | `references/security-mode.md` |
+| **M4 — Build** | build, feature, add, implement new | Intent Anchor, DoD graph, Canvas + Predictive before code | `references/build-mode.md` |
+
+Announce every mode crossing so the user can stop it. `resolve`-style routing: pick the mode from trigger words; entering no mode at all is fine for small fixes — default discipline still applies.
+
+## Always-On Behaviors (every task, no mode needed)
 
 1. **Read before edit.** Explore the repo first. Never fix blind.
 2. **Root-cause loop.** Dig until the true cause is found. Do not stop at the symptom.
-3. **SkillFocus — engineer's eye.** Actively notice every off-looking point (ALL severities, not just critical): inconsistent patterns, risky structures, dead code, smells. Report them with a proposed improvement, then ask the user whether to fix.
-4. **Fix policy.** Fix what was asked + fix discovered issues only when provably safe (tests pass, minimal change, reversible, no invariant violation) + report the rest for the user to decide.
-5. **No hallucination / self-reject.** If not confident in an answer, reject it and re-verify against evidence until it is on point. Never invent test results, metrics, or file contents.
+3. **SkillFocus — engineer's eye.** Notice every off-looking point (ALL severities, not just critical). Report with a proposed improvement, then ask the user whether to fix.
+4. **Fix policy.** Fix what was asked + fix discovered issues only when provably safe + report the rest for the user to decide.
+5. **No hallucination / self-reject.** If not confident, reject the answer and re-verify against evidence until it is on point.
 6. **Verify before done.** Run `scripts/loopfocus-verify.sh` before claiming completion. FAIL means return to the state machine.
 
-## Core Systems
+## Gate Profiles (effort elasticity)
 
-### Goal Lock
-Lock the objective at LOCK time. Every action must answer: "How does this finish the goal?" No answer = drift. Stop and return.
-
-### Anti-Drift Engine
-Watch for scope creep (fixing login turning into rewriting the whole UI). When detected: stop, state the drift, return to the locked goal.
-
-### Hypothesis Ledger
-Before each fix attempt, record in `.loopfocus/ledger.md`:
-- What I think the cause is
-- How I will test it
-- What result I expect
-After the attempt, record the actual result. Guessing without a ledger is forbidden.
-
-### Loop Mutation
-If the same approach fails 2-3 times, it is banned. Change hypothesis, tool, or approach automatically. Reworded retries of the same approach are the most common failure mode and are never allowed. When boundary-math edits keep failing, stop editing the caller and inspect the dependencies.
-
-### Progress Proof
-"Making progress" claims are worthless. Only evidence counts: test failures 14→3, compile passes up, affected files reduced. Loop with no metric improvement = stuck.
-
-### Checkpoint Brain
-At every milestone, record in `.loopfocus/state.md`:
-- DONE: what is finished
-- PROVEN: what is verified
-- UNKNOWN: what is still open
-- NEXT: the next action
-A new agent or fresh context must read this file before doing anything. Commit small and often so git history is also a checkpoint.
-
-### Self-Reject Rule
-Before presenting any conclusion, ask: "Can I point to the evidence?" If no — reject the conclusion and go find evidence. If the answer does not directly address the question, reject it and rework it.
-
-## Common Mistakes
-
-| Mistake | Fix |
-|---|---|
-| Retrying the same fix with new wording | Loop Mutation: after 2-3 identical failures, change hypothesis/tool/approach |
-| "I already tested it manually" | Evidence or it did not happen — artifact gate |
-| Fixing 20 files for a 2-line problem | Minimum Intervention: change only what the goal needs |
-| "Done" while a known blocker remains | Completion gate: blockers = 0 before READY_TO_FINISH |
-| Fixing extra issues without asking | Fix policy: ask the user first, report + propose instead of silently expanding |
-
-## Gate Engine
-
-Gates are checkpoints every action must pass. The Focus State Machine is the rhythm; gates are the checkpoints on every transition. Never skip a state while a relevant gate is failing.
-
-### Gate Profiles (change automatically)
+Not every gate fires on every task. Pick the profile at LOCK; escalate on repeated failure or high impact; lighten on strong progress.
 
 | Profile | Gates | When |
 |---|---|---|
 | LIGHT | entry, build, test, completion | simple task |
-| NORMAL | LIGHT + static, regression, evidence-freshness, checkpoint | many files / architecture |
-| DEEP | NORMAL + artifact, and reasoning gates below get strict | repeated failure / high impact |
+| NORMAL | + static, regression, evidence-freshness, checkpoint | many files / architecture |
+| DEEP | + artifact, and judgment gates go strict | repeated failure / high impact |
 | Near completion | completion gate expands scope | close to done |
 
-Choose the profile when locking the goal. Record it in `.loopfocus/profile`. Escalate the profile (LIGHT→NORMAL→DEEP) when failures repeat or impact is high. Never force a heavy profile on a trivial task (Effort Elasticity).
+Machine gates run via `bash scripts/gate-runner.sh`. Judgment gates are self-checks recorded in the ledger. Details: `references/gate-engine.md`.
 
-### Machine Gates (run `scripts/gate-runner.sh`)
+## Loop Strategy Ladder
 
-- **entry** — state.md recorded with a goal (all profiles)
-- **build** — build command passes (configured via `.loopfocus/gates.conf`)
-- **static** — lint/typecheck passes
-- **test** — test command passes
-- **regression** — passing-test count did not drop vs `.loopfocus/metrics`
-- **evidence-freshness** — no code file changed after state.md was last updated
-- **checkpoint** — git repo exists (rollback point available)
-- **artifact** — evidence file produced, non-empty
-- **completion** — UNKNOWN: none + NEXT: none/done + ledger has actual result
-
-Every gate prints one JSON line: `{"gate","status","attempt","reason","blocking","next_action"}`. FAIL with `blocking:true` means stop and handle `next_action` before continuing. Exit code 1 = at least one blocking FAIL.
-
-### Judgment Gates (self-check before acting — record the decision in the ledger)
-
-- **context gate** — do I have enough context for this action? If I have not read the files involved, block myself before editing architecture.
-- **assumption gate** — high-impact assumptions need evidence or a test first. "This API never returns null" is not evidence unless the contract was checked.
-- **plan gate** — large change radius needs a written approach before executing.
-- **mutation gate** — does this edit serve the goal? Does it expand scope? How reversible is it?
-- **change-radius gate** — a small goal touching 30 files → hold and reassess.
-- **dependency gate** — adding/removing/upgrading a dependency needs a goal-linked reason, not convenience.
-- **progress gate** — every loop needs measurable delta or information gain. Neither = NO_PROGRESS.
-- **repeat gate** — a failed approach cannot be retried without new evidence changing the hypothesis.
-- **stuck gate** — same failure class over threshold → no plain retry; mutate strategy.
-- **oscillation gate** — A passes/B fails → A fails/B passes → … → stop fixing symptoms; find the shared root cause.
-- **scope gate** — classify every action Required / Supporting / Optional / Unrelated. Unrelated is blocked.
-- **runtime/browser/performance gates** — change must run, key interactions must work, hot-path changes must not regress latency/memory abnormally.
-- **ci gates** — local fast gate before CI; separate code failure from flaky/environment failure before touching code; near completion, expand to full CI.
-- **recovery gate** — after rollback/reset/crash: restore goal + known truth + attempts + failures before continuing.
-- **checkpoint gate** — before structural/risky changes: stable state + rollback point first.
-
-### Gate DAG (per project, not a fixed chain)
+When an approach fails, move down the ladder — never reword and retry the same rung:
 
 ```
-entry → context → mutation → (build / runtime / browser) → test → regression → progress → ci → completion
+S1 Direct Fix → S2 Root-cause Trace → S3 Reproduce Minimal Case
+→ S4 Inspect Dependencies → S5 Alternative Implementation → S6 Escalate
 ```
 
-Backend has no browser gate. Docs-only changes may have no build gate. Discover the project's gates from its tools (Phase 5 Tool Auto-Discovery).
+Details: `references/loop-control.md`.
 
-### Loop Genome + Failure Memory
+## Commitment Levels
 
-Every task has an evolution history. Record each attempt with `scripts/loop-genome.js`:
+Not every reasoning result becomes a code edit:
 
-```bash
-node scripts/loop-genome.js record --class <problem-class> --strategy <name> \
-  --result fail|partial|success --delta <n> --reason "..." --hypothesis "..."
+```
+L0 Observe → L1 Hypothesis → L2 Experiment → L3 Temporary Patch
+→ L4 Confirmed Change → L5 Structural Change
 ```
 
-- A strategy that failed twice with zero successes is auto-banned — never retry it.
-- Before starting a new problem, check history: `node scripts/loop-genome.js query --class <similar-class>` — if a strategy family already won for this problem class, start there instead of thinking from zero.
-- The genome lives in `.loopfocus/genome.json` (per repo, or `~/.loopfocus/` outside a repo). A new agent or fresh context must query it before re-attempting anything.
-
-## Modes
-
-Invoked on request. Default behaviors stay on; a mode adds its own discipline.
-
-### M3 — Security Mode (trigger: "security review", "audit", "scan", "vulnerab", "CVE", "secure")
-
-1. **Coverage checklist — never skip a category** (go through ALL, even if you expect nothing):
-   - Injection (SQL, NoSQL, command, template, path traversal)
-   - AuthN/AuthZ (hardcoded secrets, weak comparison/type juggling, missing auth, IDOR)
-   - Secret leakage (hardcoded keys, .env committed, tokens in logs)
-   - Dependency risk (npm audit / pip-audit / cargo audit / govulncheck — run the project's audit tool)
-   - Transport/config (TLS, headers, CORS, permissions, rate limiting)
-   - Data exposure (PII, sensitive endpoints unauthenticated, mass assignment)
-   - Business logic flaws
-2. **Evidence first.** Every finding = file:line + a reproduction or the audit tool's output. Unverified suspicion is recorded as UNKNOWN, not as a finding.
-3. **Severity taxonomy:** Critical / High / Medium / Low / Info — with exploitability (remote? unauth?) as the deciding factor, not gut feel.
-4. **Fix policy applies:** propose fixes, ask the user which to apply. Never silently fix security issues beyond the goal unless provably safe and reversible.
-5. **Record everything** in `.loopfocus/ledger.md` + state.md + genome (`--class security-<area>`).
-
-### M4 — Build Mode (trigger: "build", "feature", "add", "implement new")
-
-1. **LOCK first:** restate the requirement in your own words (Intent Anchor) + list MUST/MUST-NOT invariants before writing anything.
-2. **Design before code:** Canvas the architecture (below) + Predictive analysis on the touched area.
-3. **DoD Graph:** write the completion conditions as a chain (feature works → tests pass → no regression → verify → done) into `.loopfocus/dod.md` at the start.
-4. **Write → verify loop:** smallest working slice first, run gates every loop, update state.md each milestone.
-5. **No scope creep:** new ideas go to the report list (SkillFocus), not into the code, until the user approves.
+Jumping from L1 to L5 without supporting evidence is forbidden. Details: `references/reasoning-discipline.md`.
 
 ## Canvas (available anytime)
 
-When the task needs structural explanation — current architecture, a proposed feature structure, or impact of a change — draw it before implementing:
+Structural explanation — current architecture, a proposed feature structure, impact of a change — is drawn before implementation: Mermaid/ASCII in chat, edge labels = data flow, invariants marked. On approval, save as `docs/loopfocus-canvas-<topic>.md`. Never draw boxes for files you have not read. Details: `references/canvas.md`.
 
-1. Draw in chat: Mermaid or ASCII — modules/boxes + edges = data flow or dependency. Label every edge with what travels on it.
-2. Mark on the diagram: where the change goes, what else touches it (Predictive), what must not break (invariants).
-3. If the user approves, save the diagram + explanation as `docs/loopfocus-canvas-<topic>.md` in the repo (committed).
-4. Never draw boxes for classes/files you have not actually read — a canvas is evidence-based like everything else.
+## Predictive Analysis (before features or coupled changes)
 
-## Predictive Analysis (ก่อน feature ใหม่/ก่อนแก้จุดที่เชื่อมเยอะ)
+Predict where bugs will emerge, evidence-based: touch map → risk factors (coupling, complexity, churn, missing tests, concurrency, data flow) → confidence levels (Known / Likely / Unknown — never present Likely as Known) → prevention suggestions recorded in the ledger. Details: `references/predictive-analysis.md`.
 
-Predict where bugs will emerge when a new feature or change lands. Evidence-based — cite the actual code:
-
-1. **Touch map:** which modules the change touches, and which depend on them (search callers).
-2. **Risk factors, with evidence:** coupling (how many callers), complexity (long functions/branches), churn (recent git history of the file), missing tests (coverage of the touched paths), concurrency (shared mutable state), data flow (inputs that flow into the change).
-3. **Confidence levels:** each prediction is Known (verified by reading) / Likely (pattern + partial evidence) / Unknown (insufficient evidence — say so). Never present Likely as Known.
-4. **Output:** risk list per module + prevention suggestion (extra test, boundary check, contract pin). Record in the ledger so post-feature bugs can be compared against predictions.
-
-## ToolBus
-
-All tools feed one brain. Every tool output goes through the Signal Normalizer before it reaches a decision.
-
-### Signal Normalizer
-
-Wrap every verification result into one standard signal instead of reading raw output:
+## ToolBus Quick Reference
 
 ```bash
+bash scripts/tool-discovery.sh                     # detect project tools → .loopfocus/gates.conf + tool-map.md
+bash scripts/fast-gate.sh                          # build → static → test, stop at first failure
+bash scripts/gate-runner.sh                        # machine gates for the current profile
+bash scripts/loopfocus-verify.sh                   # completion gate
 node scripts/normalize-signal.js --source local:test --status fail \
-  --previous-failures 17 --current-failures 3 --failure-class webkit-nav \
-  --new-regressions 0 --evidence-fresh true --attempt 12
+  --previous-failures 17 --current-failures 3 --attempt 12
+node scripts/loop-genome.js record --class <cls> --strategy <s> --result fail|partial|success --delta <n> --reason "..." --hypothesis "..."
+node scripts/loop-genome.js query --class <cls>    # what won for this problem class before
+node scripts/git-state.js                          # changed files, commits, diff stat
+node scripts/git-state.js worktree-new attempt-b   # branch A/B/C in isolated worktrees
+node scripts/ci-controller.js failed-jobs <run-id> # CI Matrix Brain: focus the failure domain
 ```
 
-Rules it encodes:
-- Failures dropping (17→3) with no new regressions = **progress: true** → CONTINUE, even though status is still fail. Never mutate strategy when converging.
-- Flat failures or rising failures = **progress: false** → MUTATE (no reworded retries).
-- New regressions > 0 = ROLLBACK (previously passing things broke).
+Full ToolBus: `references/toolbus.md`.
 
-### Tool Discovery (first step in any repo)
+## Non-Negotiable Red Flags
 
-```bash
-bash scripts/tool-discovery.sh
-```
-
-Detects npm/pytest/cargo/go/CI/Docker/Playwright and writes `.loopfocus/gates.conf` (feeds gate-runner) + `.loopfocus/tool-map.md`. Run it before locking the goal. A gate without a configured command is SKIP, never silently assumed.
-
-### Local Fast Gate (before CI — never wait for CI blindly)
-
-```bash
-bash scripts/fast-gate.sh
-```
-
-Runs build → static → test from gates.conf, stops at the first failure (a failed build means tests are pointless this loop). CI Controller applies the same ordering remotely.
-
-### Git State Engine (evidence + parallel attempts)
-
-- `node scripts/git-state.js` — branch, last commits, staged/unstaged/untracked files, diff stat (State Integrity input).
-- Worktrees for branching attempts: `node scripts/git-state.js worktree-new attempt-b` creates an isolated worktree — run competing hypotheses in separate worktrees, compare results, keep the winner (Branch-and-Recover).
-
-### CI Controller (smart, not blind)
-
-```bash
-node scripts/ci-controller.js runs
-node scripts/ci-controller.js failed-jobs <run-id>     # which jobs failed — CI Matrix Brain: focus the failure domain only
-node scripts/ci-controller.js logs <run-id>            # failed job logs
-node scripts/ci-controller.js rerun-failed <run-id>    # rerun ONLY failed jobs — never the whole matrix for one browser failure
-node scripts/ci-controller.js artifacts <run-id>
-```
-
-Separate code failure from flaky/environment failure before touching code (CI Reliability). WebKit-only failure → fix/rerun the WebKit shard, not the whole project.
-
-### Browser/E2E Driver (Playwright as a sensor)
-
-For UI work: `npx playwright test` after every visual change; use `--project` per browser (Chromium/Firefox/WebKit) to match CI Matrix Brain; capture screenshots (`--screenshot`) into artifacts so evidence is attached to the attempt. Loop: render → interact → screenshot → compare → normalize-signal.
-
-### Build Sandbox (Docker for risky changes)
-
-Dangerous or experimental changes run in a container first: build/test inside `docker run` against the same image CI uses; only when it passes, bring the change back into the workspace. Never test environment-destroying changes in the working tree.
-
-### Runtime Observer (OpenTelemetry when available)
-
-If the project emits OTel traces/metrics/logs, read them as runtime evidence — tests passing while latency jumps 120ms → 1.8s is a regression the test suite cannot see. Normalize it: `--source runtime:otel --status fail --failure-class latency`.
-
-### Artifact/Evidence Collector
-
-Every tool result must be saved with its attempt number before it counts as evidence: test report, screenshot, CI log, diff. Attach them in the ledger entry (`evidence: <path>`). A claim without an artifact path is not evidence.
-
-### Adaptive CI (verification radius grows with confidence)
-
-```
-Code Changed → Impact Detection → Fast Checks → Affected Tests
-→ Relevant CI Matrix → PASS? → NO: loop (fix)   YES: Broader CI → Full Gate
-```
-
-Small work does not fire full CI every loop. Near completion, expand to the full gate. Always end with full CI on the final change.
-
-## Red Flags — STOP and return to the state machine
+Stop and return to the correct state when any of these occurs:
 
 - Editing files before reading them
 - Repeating an approach that already failed
@@ -296,5 +134,32 @@ Small work does not fire full CI every loop. Near completion, expand to the full
 - Expanding scope without naming the goal link
 - Answering with confidence while evidence is missing
 - Declaring done while blockers are known
+- Fixing a symptom while the root cause is untraced
+- Trying a third reworded retry of the same approach family
+- Fixing extra issues without asking the user first
+- Restarting work after context loss without reading `.loopfocus/state.md`
+- Trusting a test run that predates the latest code change
+- Watching failures oscillate between two areas and fixing symptoms anyway
+- Letting solution complexity grow while progress is flat
+- Adding a dependency because it is convenient, without a goal-linked reason
+- Presenting a prediction marked Likely as if it were Known
+- Claiming READY_TO_FINISH without a passing `loopfocus-verify.sh`
 
 **All of these mean: pause, record what happened in `.loopfocus/`, and resume at the correct state.**
+
+## Completion Report Contract
+
+Report results in this order:
+
+1. objective and locked goal;
+2. root cause and the evidence chain that found it;
+3. files and behavior changed (with change radius);
+4. hypothesis ledger summary and signal outputs;
+5. gate results (profile used, machine gates, judgment gate decisions);
+6. loop genome records (attempts, banned strategies, winner);
+7. SkillFocus findings reported for user decision;
+8. verify script result;
+9. residual risks and unknown items;
+10. what the user is being asked to decide, without silently choosing for them.
+
+Read `references/verification-and-claim-governance.md` before using words such as finished, fixed, secure, or ready.

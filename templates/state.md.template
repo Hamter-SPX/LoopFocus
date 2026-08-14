@@ -1,0 +1,17 @@
+# .loopfocus/state.md — LoopFocus checkpoint state
+# Keep the four sections; the verify script parses UNKNOWN: and NEXT: lines.
+
+goal: <one sentence — the locked objective>
+invariants:
+  - <must not break>
+profile: LIGHT|NORMAL|DEEP
+
+DONE:
+  - <finished work>
+
+PROVEN:
+  - <verified facts with evidence paths>
+
+UNKNOWN: none
+
+NEXT: none

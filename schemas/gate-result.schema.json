@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "LoopFocus Gate Result",
+  "description": "Standard output of every gate (machine gates via scripts/gate-runner.sh, judgment gates recorded in the ledger)",
+  "type": "object",
+  "required": ["gate", "status", "attempt", "reason", "blocking", "next_action"],
+  "properties": {
+    "gate": { "type": "string", "description": "gate name, one of the 26" },
+    "status": { "enum": ["PASS", "FAIL", "SKIP"] },
+    "attempt": { "type": "integer" },
+    "reason": { "type": "string" },
+    "blocking": { "type": "boolean" },
+    "evidence": { "type": "array", "items": { "type": "string" }, "description": "artifact paths supporting the verdict" },
+    "next_action": { "type": "string", "description": "action to handle the FAIL, e.g. fix_tests, resolve_blockers" }
+  }
+}
