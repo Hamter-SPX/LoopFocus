@@ -153,6 +153,19 @@ entry → context → mutation → (build / runtime / browser) → test → regr
 
 Backend has no browser gate. Docs-only changes may have no build gate. Discover the project's gates from its tools (Phase 5 Tool Auto-Discovery).
 
+### Loop Genome + Failure Memory
+
+Every task has an evolution history. Record each attempt with `scripts/loop-genome.js`:
+
+```bash
+node scripts/loop-genome.js record --class <problem-class> --strategy <name> \
+  --result fail|partial|success --delta <n> --reason "..." --hypothesis "..."
+```
+
+- A strategy that failed twice with zero successes is auto-banned — never retry it.
+- Before starting a new problem, check history: `node scripts/loop-genome.js query --class <similar-class>` — if a strategy family already won for this problem class, start there instead of thinking from zero.
+- The genome lives in `.loopfocus/genome.json` (per repo, or `~/.loopfocus/` outside a repo). A new agent or fresh context must query it before re-attempting anything.
+
 ## Red Flags — STOP and return to the state machine
 
 - Editing files before reading them
