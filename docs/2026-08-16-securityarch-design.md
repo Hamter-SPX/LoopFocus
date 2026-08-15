@@ -1,7 +1,7 @@
-# SecurityArch — Design Spec v3
+# SecurityArch — Design Spec v4
 
 วันที่: 2026-08-16
-สถานะ: Draft v3 (93 ระบบ 7 ชั้น + 9 Signature Features — รอรีวิวจากเจ้าของโปรเจกต์)
+สถานะ: Draft v4 (126 ระบบ 8 ชั้น — Cross-Layer Hardware–Software Security Architecture Intelligence — รอรีวิวจากเจ้าของโปรเจกต์)
 ตำแหน่ง: โหมด M3 ของ LoopFocus — หน่วยสมบูรณ์ในตัว (มี Docs + Identity ของตัวเอง)
 
 ---
@@ -206,6 +206,66 @@ SECURITY EXIT GATE
 | 92 | Recursive Security Science Loop ⭐ | Observe→Model→Hypothesize→Challenge→Evidence→Falsify→Repair→Challenge again→Converge — พยายามพิสูจน์ว่าตัวเอง**ผิด** ไม่ใช่ถูก |
 | 93 | L7 Pipeline | Intent → Business Requirements → Candidates A/B/C → World Model → Formal Constraints → Threat/Trust/Identity/Data Analysis → Counterexamples → Adversarial Review → Optimization → Proof/Evidence → Independent Judge → Approved Architecture |
 
+### L8 — Cross-Layer Hardware–Software Intelligence — 33 ระบบ
+
+#### Hardware Trust (15)
+
+| # | ระบบ | หน้าที่ |
+|---|---|---|
+| 94 | Hardware Root-of-Trust Model | TPM/Secure Enclave/HSM/Secure Boot/Measured Boot/attestation = trust anchor ทั้งระบบ + ตรวจว่า software chain ยึด trust จาก hardware ตรงไหน |
+| 95 | Firmware Trust Chain Analyzer | ROM→bootloader→firmware→OS→hypervisor — แต่ละ stage เชื่อ stage ก่อนหน้าเพราะอะไร trust ส่งต่ออย่างไร |
+| 96 | CPU Privilege Model | user/kernel/hypervisor/secure world — component ไหนมีอำนาจเกินหน้าที่ |
+| 97 | Memory Protection Architecture | isolation, virtual memory, NX, protected regions, memory ownership เชิง architecture |
+| 98 | DMA/Device Trust Model | peripheral/accelerator/NIC/GPU/storage controller = actor ใน trust graph ไม่ใช่ของไว้ใจอัตโนมัติ |
+| 99 | Bus & Interconnect Trust Graph | PCIe, internal buses, SoC interconnect, shared memory = security boundary |
+| 100 | TEE Architecture Reasoner | confidential workload ควรอยู่ normal world / TEE / isolated VM ตรงไหน boundary ที่แท้จริงคืออะไร |
+| 101 | Hardware Identity Engine | device/machine/secure element/service identity เชื่อม IAM graph เดียวกัน |
+| 102 | Physical-to-Logical Trust Bridge | "เครื่องนี้ถูกต้อง" ≠ "process นี้ได้รับอนุญาต" — ไม่ให้ attestation ใช้แทน authorization แบบผิดๆ |
+| 103 | Side-Channel Risk Model | flag component ที่แชร์ CPU/cache/memory/timing กับข้อมูลสำคัญเกินไป (ระดับ architecture ไม่ใช่คู่มือโจมตี) |
+| 104 | Fault Containment Architecture | subsystem หนึ่งผิด ระบบจำกัดผลกระทบได้แค่ไหน |
+| 105 | Hardware Supply-Chain Trust | firmware image, FPGA bitstream, board component, secure element + manufacturing provenance เข้า dependency graph เดียวกับ software |
+| 106 | Firmware Update Security Model | update/signing authority, rollback protection, recovery path, revocation = invariant |
+| 107 | Device Lifecycle Security | manufacture→provisioning→enrollment→operation→repair→decommission — secret/identity ครบวงจร |
+| 108 | Silicon-to-Service Attestation Chain | hardware measurement→boot state→OS state→workload identity→service authorization — หาจุดที่ trust กระโดดโดยไม่มีหลักฐาน |
+
+#### OS / System Software (6)
+
+| # | ระบบ | หน้าที่ |
+|---|---|---|
+| 109 | Kernel Trust Graph | driver, syscall boundary, kernel extension, privileged daemon, IPC = first-class security objects |
+| 110 | System Call Capability Model | ไม่ดูแค่ "รันเป็น root ไหม" — process ต้องการ capability อะไรจริง authority ไหนเกินจำเป็น |
+| 111 | IPC Security Reasoner | socket/pipe/shared memory/message bus/RPC/Binder/XPC — ใครส่ง message ให้ใครได้ identity preserve ระหว่าง hop ไหม |
+| 112 | Namespace/Isolation Model | container/process/user/network/mount isolation — boundary ที่คิดว่ามี "จริง" หรือแค่ logical convention |
+| 113 | Kernel-to-User Invariant | untrusted parser ห้ามอยู่ใน privileged process; network-facing decoding ห้ามใช้ authority ระดับ kernel |
+| 114 | Driver Security Architecture | driver ไหนถือ privilege สูง ควรแยกจาก attack-facing surface ไหม |
+
+#### Compiler / Runtime / Language (5)
+
+| # | ระบบ | หน้าที่ |
+|---|---|---|
+| 115 | Build Trust Graph | Source→Compiler→IR→Optimizer→Linker→Binary→Loader→Runtime — binary ที่ deploy มาจาก source/flags/deps ไหน artifact ไหนเปลี่ยนผลลัพธ์ได้ |
+| 116 | Compiler Assumption Registry | memory model, UB assumptions, FFI boundary, ABI assumptions, unsafe boundary |
+| 117 | Language Boundary Analyzer | ระบบผสม Rust+C+Swift+Kotlin — security property หายตอนข้าม FFI ไหม |
+| 118 | Serialization Boundary Model | data representation เปลี่ยน format หลายรอบ — จุดเชื่อม hardware/software/network |
+| 119 | Runtime Isolation Graph | VM, WASM, sandbox, plugin runtime, JS engine, Python interpreter, native extension |
+
+#### Distributed Systems (3)
+
+| # | ระบบ | หน้าที่ |
+|---|---|---|
+| 120 | Distributed Trust Semantics | ไม่มี "global truth" เสมอไป — identity/authz freshness, cache consistency, revocation propagation, clock assumptions, replica trust, message ordering, partial failure, retry semantics, idempotency |
+| 121 | Revocation Propagation Analyzer | revoke สิทธิ์ตอน T0 → นานสุดเท่าไรกว่าทุก component จะหยุดยอมรับสิทธิ์นั้น |
+| 122 | Security Consistency Model | consistency ด้าน security แยกจาก database consistency ปกติ |
+
+#### Cross-Layer (3)
+
+| # | ระบบ | หน้าที่ |
+|---|---|---|
+| 123 | Cross-Layer Invariant Engine ⭐ | invariant หนึ่งข้อวิ่งข้ามทุกชั้น: "Secret X เข้าถึงได้เฉพาะ workload Y บนเครื่องที่ผ่าน attestation ใน isolation domain Z" → Hardware identity→Boot integrity→OS identity→Workload identity→Process isolation→Service IAM→Secret policy→Application access — ขาด hop เดียว = พิสูจน์ไม่ได้ |
+| 124 | Hardware–Software Contract Engine ⭐ | HW บอก "region A protected, device B isolated, boot C verified" — SW assume "A secret เสมอ, B ไว้ใจได้, verified=authorized" → หา contract ที่ไม่ตรงกัน (บั๊กชั้นลึก = แต่ละชั้นถูก แต่ assumption ระหว่างชั้นผิด) |
+| 125 | SecurityArch Hardware Design Mode | โหมดเฉพาะสำหรับออกแบบ hardware: CPU/SoC/FPGA/Memory controller/Bus/I-O/Secure element/Firmware/Board trust → Asset Map, Privilege Domains, HW Trust Boundaries, Clock/Reset Domains, Memory Access Graph, Device Authority Graph, Boot Trust Chain, Firmware Authority, **Debug Interface Governance** (debug/test path ต้องมีเฉพาะ manufacturing/development ไม่ใช่ production — ปิด/จำกัดตาม lifecycle) |
+| 126 | End-to-End Trust Proof ⭐⭐ | ตอบ "ทำไม request นี้ถึงมีสิทธิ์เข้าถึงข้อมูลนี้" → trace ย้อนทั้งเส้น: User Identity→Session→Device Trust→Network Identity→Gateway→Service Identity→Authorization Policy→Workload Attestation→Process Isolation→Storage Policy→Hardware Root of Trust — ไม่ใช่ตอบว่า "เพราะ JWT ผ่าน" แต่บอกว่า trust chain มีอะไรเป็นฐาน แต่ละ hop มี evidence อะไร |
+
 ## 5. Signature Features (3 ตัว + 6 ตัวห้ามตัด ⭐)
 
 ### 5.1 Architecture Immune System
@@ -235,7 +295,7 @@ Design → Secure it → Attack assumptions → Repair
 ### 5.5 Architecture สุดท้ายของ SecurityArch
 
 ```
-SECURITYARCH
+SECURITYARCH — Cross-Layer Hardware–Software Security Architecture Intelligence
 │
 ├── L1 World Mapping
 ├── L2 Threat & Risk Intelligence
@@ -243,7 +303,10 @@ SECURITYARCH
 ├── L4 Evidence & Verification
 ├── L5 Autonomous Security Architecture
 ├── L6 Meta-Security Intelligence
-└── L7 Formal + Self-Challenging Security Intelligence
+├── L7 Formal + Self-Challenging Security Intelligence
+└── L8 Cross-Layer Hardware–Software Intelligence
+    (Hardware Trust · OS/System · Compiler/Runtime · Distributed ·
+     Cross-Layer Invariants · HW-SW Contract · End-to-End Trust Proof)
 ```
 
 ## 6. Rules ที่ SecurityArch ยึดเหนือ LoopFocus มาตรฐาน
