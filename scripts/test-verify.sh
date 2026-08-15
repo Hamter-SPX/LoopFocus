@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -u
-VF=/Users/jirawat/Projects/SkillHub/LoopFocus/scripts/loopfocus-verify.sh
+S="$(cd "$(dirname "$0")" && pwd)"
+VF="$S/loopfocus-verify.sh"
 TMP=$(mktemp -d)
 fail=0
 

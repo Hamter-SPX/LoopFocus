@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -u
-S=/Users/jirawat/Projects/SkillHub/LoopFocus/scripts
+S="$(cd "$(dirname "$0")" && pwd)"
 TMP=$(mktemp -d)
 fail=0
 

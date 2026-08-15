@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -u
-CF=/Users/jirawat/Projects/SkillHub/LoopFocus/scripts/loopfocus-conformance.sh
-ROOT=/Users/jirawat/Projects/SkillHub/LoopFocus
+S="$(cd "$(dirname "$0")" && pwd)"
+CF="$S/loopfocus-conformance.sh"
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 TMP=$(mktemp -d)
 fail=0
 

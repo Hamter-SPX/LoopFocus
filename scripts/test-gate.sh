@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -u
-GR=/Users/jirawat/Projects/SkillHub/LoopFocus/scripts/gate-runner.sh
+S="$(cd "$(dirname "$0")" && pwd)"
+GR="$S/gate-runner.sh"
 TMP=$(mktemp -d)
 fail=0
 mkdir -p "$TMP/.loopfocus"

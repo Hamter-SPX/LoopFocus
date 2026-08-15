@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -u
-GEN=/Users/jirawat/Projects/SkillHub/LoopFocus/scripts/loop-genome.js
+S="$(cd "$(dirname "$0")" && pwd)"
+GEN="$S/loop-genome.js"
 TMP=$(mktemp -d)
 mkdir -p "$TMP/.loopfocus"
 fail=0
