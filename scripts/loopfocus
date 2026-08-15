@@ -46,6 +46,9 @@ LoopFocus CLI
   sast                             static security scan (curated rules)
   fuzz-check                       stack-specific fuzzing (go/python)
   security-exit                    SecurityArch exit gate (9 conditions)
+  constitution-check               block proposals violating the Security Constitution
+  risk-score <args>                two-axis severity × confidence
+  evidence-check --file <f>        validate the 7 evidence fields of a finding
 
   ci runs|failed-jobs|logs|rerun-failed|artifacts <id>   GitHub Actions controller
   ci-matrix <run-id>               parse CI jobs into failure domains
@@ -94,6 +97,9 @@ case "$cmd" in
   sast) bash "$ROOT/scripts/sast.sh" ;;
   fuzz-check) bash "$ROOT/scripts/fuzz-check.sh" ;;
   security-exit) bash "$ROOT/scripts/security-exit.sh" ;;
+  constitution-check) bash "$ROOT/scripts/constitution-check.sh" ;;
+  risk-score) node "$ROOT/scripts/risk-score.js" "$@" ;;
+  evidence-check) node "$ROOT/scripts/evidence-check.js" "$@" ;;
   ci) node "$ROOT/scripts/ci-controller.js" "$@" ;;
   ci-matrix) node "$ROOT/scripts/ci-matrix.js" "$@" ;;
   flaky-check) node "$ROOT/scripts/flaky-check.js" "$@" ;;
