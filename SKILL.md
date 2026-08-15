@@ -34,11 +34,15 @@ LOCK goal → EXPLORE evidence → HYPOTHESIZE with a ledger
 |---|---|---|
 | **Focus State Machine** | The rhythm — states every task walks through | `references/state-machine.md` |
 | **Gate Engine** | The checkpoints — every transition is gated | `references/gate-engine.md` |
-| **Loop Control** | The brakes — anti-retry, anti-oscillation, convergence | `references/loop-control.md` |
-| **Reasoning Discipline** | The mind — hypotheses, uncertainty, counterfactuals | `references/reasoning-discipline.md` |
-| **Goal Discipline** | The anchor — intent, scope, constraints, dependencies | `references/goal-discipline.md` |
-| **State & Memory** | The survival kit — checkpoints, recovery, handoff | `references/state-and-memory.md` |
-| **Knowledge Discipline** | The freshness — half-lives, conflicts, distillation | `references/knowledge-discipline.md` |
+| **Loop Control** | The brakes — anti-retry, anti-oscillation, convergence | `references/loop-control/` (9 systems) |
+| **Reasoning Discipline** | The mind — hypotheses, uncertainty, counterfactuals | `references/reasoning/` (10 systems) |
+| **Goal Discipline** | The anchor — intent, scope, constraints, dependencies | `references/goal/` (16 systems) |
+| **Progress Discipline** | The measurement — proof, DoD, sentinel, freshness | `references/progress/` (4 systems) |
+| **State & Memory** | The survival kit — checkpoints, recovery, handoff | `references/state-memory/` (6 systems) |
+| **Knowledge Discipline** | The freshness — half-lives, conflicts, compression | `references/knowledge/` (3 systems) |
+| **Effort Elasticity** | The governor — cheap on easy, deep on hard | `references/effort-elasticity.md` |
+| **Focus Depth** | The dial — L1 Quick → L8 Extreme | `references/dynamic-focus-depth.md` |
+| **SkillFocus** | The eye — notice everything, propose, ask | `references/skillfocus.md` |
 | **ToolBus** | The sensors — tools feeding one normalized signal | `references/toolbus.md` |
 
 For a fast path through a common task, start at `flow/README.md` and follow the flow that matches the work: bug fix, feature build, security audit, review, or recovery.
@@ -49,8 +53,8 @@ Every task runs in a mode. A mode is a contract: what may be done, what gates pr
 
 | Mode | Trigger words | Extra discipline | Reference |
 |---|---|---|---|
-| **M3 — Security** | security, audit, scan, vulnerab, CVE, secure | 7-category coverage checklist, severity taxonomy, exploitability evidence | `references/security-mode.md` |
-| **M4 — Build** | build, feature, add, implement new | Intent Anchor, DoD graph, Canvas + Predictive before code | `references/build-mode.md` |
+| **M3 — Security** | security, audit, scan, vulnerab, CVE, secure | 7-category coverage checklist, severity taxonomy, exploitability evidence | `references/security-mode.md` + `flow/security-audit-flow.md` |
+| **M4 — Build** | build, feature, add, implement new | Intent Anchor, DoD graph, Canvas + Predictive before code | `references/build-mode.md` + `flow/feature-build-flow.md` |
 
 Announce every mode crossing so the user can stop it. `resolve`-style routing: pick the mode from trigger words; entering no mode at all is fine for small fixes — default discipline still applies.
 
