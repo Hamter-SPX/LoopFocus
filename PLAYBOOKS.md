@@ -7,7 +7,7 @@ Shortest correct path per common request. Each playbook lists: mode, flow, minim
 Mode: **debug** · Flow: `flow/bug-fix-flow.md`
 
 ```bash
-loopfocus mode resolve "fix the login hang"     # → debug
+loopfocus mode resolve "fix the login hang"     # → zero-debug-state
 loopfocus init && loopfocus discover             # state + tool map (first time only)
 loopfocus genome query --class login-hang        # has this class been won before?
 # LOCK: write goal + invariants into .loopfocus/state.md

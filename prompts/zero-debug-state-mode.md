@@ -1,6 +1,6 @@
 # Debug Mode — dispatch prompt
 
-Load the LoopFocus skill first, then enter debug mode (announce it).
+Load the LoopFocus skill first, then enter Zero Debug State mode (announce it).
 
 Task: <the bug, the failing test, the symptom>
 Repository: <path>

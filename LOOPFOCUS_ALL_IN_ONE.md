@@ -1,6 +1,6 @@
 # LOOPFOCUS — All-In-One Reference
 
-> Built: 2026-08-15T22:25Z | Source: github.com/Hamter-SPX/LoopFocus | Version: 0.7.0
+> Built: 2026-08-15T22:52Z | Source: github.com/Hamter-SPX/LoopFocus | Version: 0.7.0
 > This file is COMPLETE and SELF-CONTAINED. A chat AI with no file access can follow everything in it.
 
 ---
@@ -3437,7 +3437,7 @@ Every task runs in one mode. A mode is a contract: what this phase may do, what 
 - Closes when: the explanation is delivered with file:line evidence
 - Flow: none (read-only)
 
-## debug
+## zero-debug-state — Zero Debug State
 
 - Trigger: bug, fix, broken, failing, error, crash, แก้, พัง
 - May: everything inside the bug-fix flow
@@ -5139,7 +5139,7 @@ Incidents are the most expensive teacher, and most teams waste the lesson on a p
 
 ## When
 
-After any incident or near-miss, as its own recorded session (mode: debug within SecurityArch).
+After any incident or near-miss, as its own recorded session (mode: zero-debug-state within SecurityArch).
 
 ## Protocol
 

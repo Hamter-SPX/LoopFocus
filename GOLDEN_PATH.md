@@ -9,7 +9,7 @@ Fix a failing test in an npm project. Truth: the root cause is an export-key typ
 ## Step 0 — Mode + init
 
 ```bash
-loopfocus mode resolve "fix the failing test"   # → debug
+loopfocus mode resolve "fix the failing test"   # → zero-debug-state
 loopfocus init && loopfocus discover            # .loopfocus/ + gates.conf
 ```
 

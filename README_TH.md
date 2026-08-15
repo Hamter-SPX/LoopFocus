@@ -9,7 +9,7 @@
 | ชั้น | เนื้อหา |
 |---|---|
 | **วินัย** (SKILL.md + 62 references) | Focus State Machine, 5 Hard Rules, Gate Engine (26 gates), 61 ระบบเป็นไฟล์ลึก, 6 flows |
-| **โหมด** (8) | analysis-intelligence · debug · build · security · review · recover · ship · author-skill — พร้อมสัญญาที่ตรวจด้วยเครื่อง |
+| **โหมด** (8) | analysis-intelligence · zero-debug-state · build · security · review · recover · ship · author-skill — พร้อมสัญญาที่ตรวจด้วยเครื่อง |
 | **Tools** (30) | CLI รวมคำสั่ง + mode engine, gates, loop intelligence (convergence/fingerprint/entropy), Loop Genome, Signal Normalizer, planning (DoD/predictive/critical-path), ToolBus (CI/Docker/Playwright/OTel), lifecycle (init/handoff/distill), self-audit |
 | **Templates + Schemas** | state / ledger / DoD templates, signal / gate / genome schemas |
 | **CI** | GitHub Actions จริง (conformance + 9 test suites + secret scan) + CI templates ให้โปรเจกต์ผู้ใช้ |

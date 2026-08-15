@@ -10,7 +10,7 @@ Incidents are the most expensive teacher, and most teams waste the lesson on a p
 
 ## When
 
-After any incident or near-miss, as its own recorded session (mode: debug within SecurityArch).
+After any incident or near-miss, as its own recorded session (mode: zero-debug-state within SecurityArch).
 
 ## Protocol
 

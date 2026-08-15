@@ -11,7 +11,7 @@ Every task runs in one mode. A mode is a contract: what this phase may do, what 
 - Closes when: the explanation is delivered with file:line evidence
 - Flow: none (read-only)
 
-## debug
+## zero-debug-state — Zero Debug State
 
 - Trigger: bug, fix, broken, failing, error, crash, แก้, พัง
 - May: everything inside the bug-fix flow

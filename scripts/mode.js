@@ -13,7 +13,7 @@ const MODES = {
     safe_unasked: true,
     flow: "none — read-only",
   },
-  debug: {
+  "zero-debug-state": {
     trigger: ["bug", "fix", "broken", "failing", "error", "crash", "ไม่ทำงาน", "แก้", "พัง"],
     may: "everything inside the bug-fix flow",
     must_not: "fix symptoms without root-cause evidence; retry a failed approach",
