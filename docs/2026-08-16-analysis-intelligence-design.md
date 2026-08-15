@@ -1,7 +1,7 @@
 # Analysis Intelligence — Design Spec v1
 
 วันที่: 2026-08-16
-สถานะ: Draft v1 (รวบรวมจากเจ้าของโปรเจกต์ — ~250 ระบบ รอรีวิว)
+สถานะ: Draft v1.1 (รวบรวมจากเจ้าของโปรเจกต์ — ~262 ระบบ ครบทุกตัวที่ให้มา รอรีวิว)
 ตำแหน่ง: โหมด analysis-intelligence ของ LoopFocus — หน่วยสมบูรณ์ในตัว (Docs + Identity ของตัวเอง)
 
 ---
@@ -198,6 +198,7 @@ Sub-analysis แต่ละตัว **ไม่เห็น conclusion ขอ�
 | Base-Rate Intelligence | ไม่ถูกกรณีเด่นหลอกจนลืมอัตราพื้นฐาน |
 | Counterfactual Reasoning | "ถ้าไม่ทำ X จะเกิดอะไร", "ถ้า X ผิดสมมติฐานล่ะ" |
 | Counterfactual Execution Reasoning | "ถ้าบรรทัด/parameter นี้ต่างออกไป ระบบควรตอบสนองอย่างไร" |
+| Abductive Reasoning ระดับสูง | จากผลลัพธ์ที่เห็น ย้อนหา "คำอธิบายที่ดีที่สุด" พร้อมคู่แข่งหลายสมมติฐาน |
 | Cross-Domain Analogy | หลักคิดจาก distributed systems ไปวิเคราะห์องค์กร — แต่ตรวจว่า analogy ใช้ได้จริง |
 | Transfer Reasoning | นำความรู้จากระบบหนึ่งไปอีกระบบ รู้ว่าส่วนไหน transferable |
 
@@ -251,6 +252,10 @@ Sub-analysis แต่ละตัว **ไม่เห็น conclusion ขอ�
 | Active Learning | เลือกข้อมูล/experiment ใหม่เพื่อความเข้าใจสูงสุด |
 | Identifiability Awareness | รู้ว่าโจทย์ไหนข้อมูลที่มี "แยกคำตอบ A กับ B ไม่ได้จริง" แทนที่จะฝืนตอบ |
 | Assumption Mining | ตรวจสมมติฐานที่คน/Agent กำลังถืออยู่ |
+| Belief Revision | ข้อสรุประดับฐานผิด → แก้ conclusion ที่พึ่งมันทั้งหมดต่อเนื่อง |
+| Dependency-aware Belief Update | เปลี่ยนความเชื่อ → propagate ผ่าน dependency graph ไม่ใช่ update claim เดียว |
+| Optimal Instrumentation Planning | เพิ่ม logging/metrics/tracing เลือกจุด information gain สูงสุด ไม่ใช่เปิดทุกอย่าง |
+| Experiment Cost Awareness | เลือกทดลองที่ให้ข้อมูลสูงแต่ใช้ compute/time/risk ต่ำ |
 
 ### L4 — Adversarial & Self-Challenge (20 ระบบ)
 
@@ -307,6 +312,7 @@ Sub-analysis แต่ละตัว **ไม่เห็น conclusion ขอ�
 | Optimization Ceiling Detection | ใกล้เพดานแล้ว จูนต่อไม่คุ้ม |
 | Emergent Requirement Discovery | จากการใช้งานจริงพบ requirement ที่ไม่มีใครเขียน |
 | Semantic Regression Detection | test ผ่านหมดแต่ behavior สำคัญเปลี่ยน |
+| Cross-Layer Bottleneck Localization | อาการที่ application แต่สาเหตุอาจอยู่ compiler/kernel/RAM/PCIe/GPU/network/scheduling — ไล่ทะลุ layer |
 | Behavioral Equivalence Analysis | implementation สองตัว code ต่างกันแต่ทำงานเท่ากันจริงไหม |
 | Invariant Discovery | จากระบบจริง ค้นหากฎที่ "ควรจริงเสมอ" เอง |
 | Invariant Mining from Reality | สังเกตระบบแล้วค้น property ที่ดูเหมือนต้องจริงเสมอ |
@@ -365,6 +371,11 @@ Sub-analysis แต่ละตัว **ไม่เห็น conclusion ขอ�
 | Novel Solution Synthesis | ทางเลือกเดิมไม่ดีทั้งหมด → สร้างทางเลือกใหม่ |
 | Constraint-Breaking Discovery | แยก constraint จริงจาก convention |
 | Paradigm Shift Detection | optimize เดิมไม่คุ้ม → เปลี่ยนแนวคิดทั้งชุด |
+| Systemic Risk Analysis | ปัญหาเล็กๆ หลายจุดรวมกันสร้าง risk ใหญ่ |
+| Concentration Risk Analysis | resource/knowledge/dependency กระจุกตัวเกินไป |
+| Resilience Reasoning | ไม่ถามแค่ว่าป้องกัน failure ได้ไหม แต่ฟื้นตัวได้เร็วแค่ไหน |
+| Graceful Degradation Analysis | ระบบเสียบางส่วน → ลดความสามารถอย่างไรแทนพังทั้งระบบ |
+| Recovery Path Intelligence | วิเคราะห์เส้นทางกลับสู่สถานะปกติก่อนเกิดเหตุจริง |
 
 ### L7 — Prediction & Uncertainty (15 ระบบ)
 
@@ -410,6 +421,7 @@ Sub-analysis แต่ละตัว **ไม่เห็น conclusion ขอ�
 | Proof Gap Detection | ตรงไหน "เกือบพิสูจน์ได้" แต่ขาด assumption/evidence |
 | Formal + Empirical Hybrid Reasoning | พิสูจน์ได้ก็พิสูจน์ ที่เหลือใช้ measurement ไม่ปนความมั่นใจสองแบบ |
 | Physical-Limit Awareness | ไม่เสนอ solution ที่ละเมิด bandwidth/latency/thermodynamics |
+| Semantic Requirement Feasibility | อ่าน requirement แล้วรู้ตั้งแต่ต้นว่าส่วนไหนขัด physics/compute/cost/time |
 | Information-Theoretic Reasoning | entropy/information gain วิเคราะห์ bottleneck/uncertainty |
 | Complexity Awareness | ปัญหาแบบ polynomial/exponential — ดีตอนเล็กอาจใช้ไม่ได้ตอน scale |
 | Algorithmic Lower-Bound Awareness | performance บางอย่างลดต่อไม่ได้ |
