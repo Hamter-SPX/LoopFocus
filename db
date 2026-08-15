@@ -1,0 +1,8 @@
+```mermaid
+flowchart LR
+  auth["auth"]
+  session["session"]
+  db["db"]
+```
+
+mark: where the change goes / what touches it / what must not break (invariants)

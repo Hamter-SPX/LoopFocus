@@ -30,12 +30,23 @@ LoopFocus CLI
 
   predictive --target <f>          touch map + risk factors for a module
   critical-path <graph.json>       compute the completion-critical path
+  canvas --modules a b --edges ... draw the architecture scaffold (mermaid/ascii)
+  adaptive-ci <args>               impact detection → affected tests → stage order
   state                            git state: changed files, commits, diff stat
+  state-check                      validate state.md format
+  distill                          generate the Current Truth 4-line block
+  recheck --claims <file>          adversarial self-review pass
+  artifact save|list|clean <args>  evidence collector with attempt IDs
   branch-new <name>                git worktree branch for an attempt
   handoff "<request>"              package the 6-part handoff
   conformance                      audit the skill itself
 
   ci runs|failed-jobs|logs|rerun-failed|artifacts <id>   GitHub Actions controller
+  ci-matrix <run-id>               parse CI jobs into failure domains
+  flaky-check <run-id>             separate flaky from code failure
+  sandbox check|run <args>         Docker build sandbox
+  e2e install|run|shot <args>      Playwright browser driver
+  otel --url <endpoint>            runtime observer (latency regression check)
 EOF
 }
 
@@ -61,11 +72,22 @@ case "$cmd" in
   entropy) node "$ROOT/scripts/entropy.js" "$@" ;;
   predictive) node "$ROOT/scripts/predictive.js" "$@" ;;
   critical-path) node "$ROOT/scripts/critical-path.js" "$@" ;;
+  canvas) node "$ROOT/scripts/canvas.js" "$@" ;;
+  adaptive-ci) node "$ROOT/scripts/adaptive-ci.js" "$@" ;;
   state) node "$ROOT/scripts/git-state.js" ;;
+  state-check) bash "$ROOT/scripts/state-check.sh" ;;
+  distill) bash "$ROOT/scripts/distill.sh" ;;
+  recheck) node "$ROOT/scripts/recheck.js" "$@" ;;
+  artifact) bash "$ROOT/scripts/artifact.sh" "$@" ;;
   branch-new) node "$ROOT/scripts/git-state.js" worktree-new "$@" ;;
   handoff) bash "$ROOT/scripts/handoff.sh" "$@" ;;
   conformance) bash "$ROOT/scripts/loopfocus-conformance.sh" ;;
   ci) node "$ROOT/scripts/ci-controller.js" "$@" ;;
+  ci-matrix) node "$ROOT/scripts/ci-matrix.js" "$@" ;;
+  flaky-check) node "$ROOT/scripts/flaky-check.js" "$@" ;;
+  sandbox) bash "$ROOT/scripts/sandbox.sh" "$@" ;;
+  e2e) bash "$ROOT/scripts/e2e.sh" "$@" ;;
+  otel) node "$ROOT/scripts/otel-observe.js" "$@" ;;
   help|-h|--help|"") usage ;;
   *) echo "unknown command: $cmd"; usage; exit 2 ;;
 esac
