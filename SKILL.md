@@ -117,6 +117,10 @@ bash scripts/tool-discovery.sh                     # detect project tools → .l
 bash scripts/fast-gate.sh                          # build → static → test, stop at first failure
 bash scripts/gate-runner.sh                        # machine gates for the current profile
 bash scripts/loopfocus-verify.sh                   # completion gate
+bash scripts/mutation-test.sh                      # DEEP: prove tests catch bugs (mutation score)
+bash scripts/coverage.sh                           # DEEP: coverage % vs threshold
+bash scripts/sast.sh                               # DEEP: static security scan (curated rules)
+bash scripts/fuzz-check.sh                         # DEEP: go fuzz / python hypothesis
 node scripts/normalize-signal.js --source local:test --status fail \
   --previous-failures 17 --current-failures 3 --attempt 12
 node scripts/loop-genome.js record --class <cls> --strategy <s> --result fail|partial|success --delta <n> --reason "..." --hypothesis "..."
@@ -125,6 +129,8 @@ node scripts/git-state.js                          # changed files, commits, dif
 node scripts/git-state.js worktree-new attempt-b   # branch A/B/C in isolated worktrees
 node scripts/ci-controller.js failed-jobs <run-id> # CI Matrix Brain: focus the failure domain
 ```
+
+Chat AI without tools? Use `LOOPFOCUS_ALL_IN_ONE.md` — paste the whole file; the discipline runs in chat (Part 0).
 
 Full ToolBus: `references/toolbus.md`.
 

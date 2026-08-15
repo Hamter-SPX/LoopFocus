@@ -1,6 +1,6 @@
 # LOOPFOCUS — All-In-One Reference
 
-> Built: 2026-08-15T19:10Z | Source: github.com/Hamter-SPX/LoopFocus | Version: 0.7.0
+> Built: 2026-08-15T20:24Z | Source: github.com/Hamter-SPX/LoopFocus | Version: 0.7.0
 > This file is COMPLETE and SELF-CONTAINED. A chat AI with no file access can follow everything in it.
 
 ---
@@ -188,6 +188,10 @@ bash scripts/tool-discovery.sh                     # detect project tools → .l
 bash scripts/fast-gate.sh                          # build → static → test, stop at first failure
 bash scripts/gate-runner.sh                        # machine gates for the current profile
 bash scripts/loopfocus-verify.sh                   # completion gate
+bash scripts/mutation-test.sh                      # DEEP: prove tests catch bugs (mutation score)
+bash scripts/coverage.sh                           # DEEP: coverage % vs threshold
+bash scripts/sast.sh                               # DEEP: static security scan (curated rules)
+bash scripts/fuzz-check.sh                         # DEEP: go fuzz / python hypothesis
 node scripts/normalize-signal.js --source local:test --status fail \
   --previous-failures 17 --current-failures 3 --attempt 12
 node scripts/loop-genome.js record --class <cls> --strategy <s> --result fail|partial|success --delta <n> --reason "..." --hypothesis "..."
@@ -196,6 +200,8 @@ node scripts/git-state.js                          # changed files, commits, dif
 node scripts/git-state.js worktree-new attempt-b   # branch A/B/C in isolated worktrees
 node scripts/ci-controller.js failed-jobs <run-id> # CI Matrix Brain: focus the failure domain
 ```
+
+Chat AI without tools? Use `LOOPFOCUS_ALL_IN_ONE.md` — paste the whole file; the discipline runs in chat (Part 0).
 
 Full ToolBus: `references/toolbus.md`.
 
@@ -318,7 +324,7 @@ Gates are the checkpoints between state-machine transitions. A transition is not
 |---|---|---|---|
 | LIGHT | entry, build, test, completion | goal lock only | simple task |
 | NORMAL | + static, regression, evidence-freshness, checkpoint | context, mutation, scope, progress, repeat | many files / architecture |
-| DEEP | + artifact | all of the below, strict | repeated failure / high impact |
+| DEEP | + artifact, coverage, mutation, sast | all of the below, strict | repeated failure / high impact |
 | Near completion | completion expands scope | — | close to done |
 
 Escalate on repeated failure or high impact; lighten on sustained progress. The profile is recorded in `.loopfocus/profile` and announced.
@@ -351,9 +357,12 @@ Escalate on repeated failure or high impact; lighten on sustained progress. The 
 | Gate | Blocks when |
 |---|---|
 | regression | passing-test count drops vs `.loopfocus/metrics` |
+| coverage | coverage % below `.loopfocus/gates.conf` threshold (`coverage_threshold`, DEEP) |
+| mutation | mutation score below threshold — the tests do NOT catch this class of bug (`mutation_threshold`, DEEP) |
 | runtime | program no longer starts/runs, new crash/error |
 | browser | key interaction no longer works (open → click → type → navigate) |
 | performance | hot-path latency/memory abnormally worse |
+| sast | static scan finds Critical patterns (SQL concat, eval, hardcoded secrets) — DEEP |
 
 ### Progress (every loop)
 
@@ -658,6 +667,18 @@ Trigger words: security, audit, scan, vulnerab, CVE, secure, pentest. Announced 
 7. **Business logic flaws** — privilege escalation paths, flows that skip checks, replay-able actions
 
 Recording: one ledger line per category, "checked — n findings" or "checked — none". An unlisted category is a gap, not a zero.
+
+## Layer 2 — machine scans (run in DEEP profile, attach output as evidence)
+
+```bash
+loopfocus sast          # curated static rules: SQL concat, eval/exec, unsafe HTML,
+                        # hardcoded secrets, weak crypto, insecure transport
+                        # every finding: file:line + rule + severity; Critical = blocking
+loopfocus fuzz-check    # go: go test -fuzz=. -fuzztime=10s | python: hypothesis
+                        # a crashing input = FAIL (evidence for injection/parsing findings)
+```
+
+The scans are evidence generators, not certifications — findings still need file:line + reproduction before they enter the report. A clean scan says exactly what rules were run; it never says "secure".
 
 ## Evidence bar
 

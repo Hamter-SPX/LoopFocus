@@ -88,6 +88,56 @@ in_profile regression && {
   fi
 }
 
+in_profile coverage && {
+  if [ -f .loopfocus/gates.conf ] && grep -qE '^coverage_threshold=' .loopfocus/gates.conf; then
+    cov_out=$(bash "$(dirname "$0")/coverage.sh" 2>&1)
+    cov_pct=$(echo "$cov_out" | grep -oE '"coverage":[0-9.]+' | cut -d: -f2)
+    if [ -z "$cov_pct" ]; then
+      emit_skip coverage "coverage tooling not available"
+    else
+      thr=$(get_conf coverage_threshold)
+      if awk "BEGIN{exit !($cov_pct >= $thr)}"; then
+        emit_pass coverage
+      else
+        emit_fail coverage "coverage $cov_pct% below threshold $thr%" "add_tests"
+      fi
+    fi
+  else
+    emit_skip coverage "no coverage_threshold configured"
+  fi
+}
+
+in_profile mutation && {
+  if [ -f .loopfocus/gates.conf ] && grep -qE '^mutation_threshold=' .loopfocus/gates.conf; then
+    mut_out=$(bash "$(dirname "$0")/mutation-test.sh" 2>&1)
+    mut_score=$(echo "$mut_out" | grep -oE '"mutation_score":[0-9]+' | cut -d: -f2)
+    if [ -z "$mut_score" ]; then
+      emit_skip mutation "no mutable statements found"
+    else
+      mth=$(get_conf mutation_threshold)
+      if [ "$mut_score" -ge "$mth" ] 2>/dev/null; then
+        emit_pass mutation
+      else
+        emit_fail mutation "mutation score $mut_score% below threshold $mth% — tests do not catch this class of bug" "strengthen_tests"
+      fi
+    fi
+  else
+    emit_skip mutation "no mutation_threshold configured"
+  fi
+}
+
+in_profile sast && {
+  sast_out=$(bash "$(dirname "$0")/sast.sh" 2>&1)
+  crit=$(echo "$sast_out" | grep -oE '"critical":[0-9]+' | cut -d: -f2)
+  if [ -z "$crit" ]; then
+    emit_pass sast
+  elif [ "$crit" -gt 0 ]; then
+    emit_fail sast "critical findings: $crit" "fix_critical_findings"
+  else
+    emit_pass sast
+  fi
+}
+
 in_profile evidence-freshness && {
   if [ -f "$STATE" ]; then
     stale=$(find . -path ./.git -prune -o -path ./.loopfocus -prune -o -type f -newer "$STATE" -print 2>/dev/null | head -1)

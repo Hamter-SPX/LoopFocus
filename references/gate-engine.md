@@ -8,7 +8,7 @@ Gates are the checkpoints between state-machine transitions. A transition is not
 |---|---|---|---|
 | LIGHT | entry, build, test, completion | goal lock only | simple task |
 | NORMAL | + static, regression, evidence-freshness, checkpoint | context, mutation, scope, progress, repeat | many files / architecture |
-| DEEP | + artifact | all of the below, strict | repeated failure / high impact |
+| DEEP | + artifact, coverage, mutation, sast | all of the below, strict | repeated failure / high impact |
 | Near completion | completion expands scope | — | close to done |
 
 Escalate on repeated failure or high impact; lighten on sustained progress. The profile is recorded in `.loopfocus/profile` and announced.
@@ -41,9 +41,12 @@ Escalate on repeated failure or high impact; lighten on sustained progress. The 
 | Gate | Blocks when |
 |---|---|
 | regression | passing-test count drops vs `.loopfocus/metrics` |
+| coverage | coverage % below `.loopfocus/gates.conf` threshold (`coverage_threshold`, DEEP) |
+| mutation | mutation score below threshold — the tests do NOT catch this class of bug (`mutation_threshold`, DEEP) |
 | runtime | program no longer starts/runs, new crash/error |
 | browser | key interaction no longer works (open → click → type → navigate) |
 | performance | hot-path latency/memory abnormally worse |
+| sast | static scan finds Critical patterns (SQL concat, eval, hardcoded secrets) — DEEP |
 
 ### Progress (every loop)
 

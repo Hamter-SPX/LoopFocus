@@ -41,6 +41,10 @@ LoopFocus CLI
   handoff "<request>"              package the 6-part handoff
   conformance                      audit the skill itself
   build-all-in-one                 regenerate LOOPFOCUS_ALL_IN_ONE.md (for chat AIs)
+  mutation-test                    prove tests catch bugs (mutation score)
+  coverage                         test coverage vs threshold
+  sast                             static security scan (curated rules)
+  fuzz-check                       stack-specific fuzzing (go/python)
 
   ci runs|failed-jobs|logs|rerun-failed|artifacts <id>   GitHub Actions controller
   ci-matrix <run-id>               parse CI jobs into failure domains
@@ -84,6 +88,10 @@ case "$cmd" in
   handoff) bash "$ROOT/scripts/handoff.sh" "$@" ;;
   conformance) bash "$ROOT/scripts/loopfocus-conformance.sh" ;;
   build-all-in-one) bash "$ROOT/scripts/build-all-in-one.sh" ;;
+  mutation-test) bash "$ROOT/scripts/mutation-test.sh" ;;
+  coverage) bash "$ROOT/scripts/coverage.sh" ;;
+  sast) bash "$ROOT/scripts/sast.sh" ;;
+  fuzz-check) bash "$ROOT/scripts/fuzz-check.sh" ;;
   ci) node "$ROOT/scripts/ci-controller.js" "$@" ;;
   ci-matrix) node "$ROOT/scripts/ci-matrix.js" "$@" ;;
   flaky-check) node "$ROOT/scripts/flaky-check.js" "$@" ;;

@@ -21,6 +21,18 @@ Trigger words: security, audit, scan, vulnerab, CVE, secure, pentest. Announced 
 
 Recording: one ledger line per category, "checked — n findings" or "checked — none". An unlisted category is a gap, not a zero.
 
+## Layer 2 — machine scans (run in DEEP profile, attach output as evidence)
+
+```bash
+loopfocus sast          # curated static rules: SQL concat, eval/exec, unsafe HTML,
+                        # hardcoded secrets, weak crypto, insecure transport
+                        # every finding: file:line + rule + severity; Critical = blocking
+loopfocus fuzz-check    # go: go test -fuzz=. -fuzztime=10s | python: hypothesis
+                        # a crashing input = FAIL (evidence for injection/parsing findings)
+```
+
+The scans are evidence generators, not certifications — findings still need file:line + reproduction before they enter the report. A clean scan says exactly what rules were run; it never says "secure".
+
 ## Evidence bar
 
 Every finding = `file:line` + a reproduction OR the audit tool's output. An unverified suspicion is an UNKNOWN in state.md, never a finding. Exploitability claims (remote? unauth?) are verified before being written — a finding without exploitability is a severity guess.

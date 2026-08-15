@@ -8,6 +8,7 @@ fail=0
 
 mkdir -p "$TMP/skill"
 cp -R "$ROOT/SKILL.md" "$ROOT/references" "$ROOT/flow" "$ROOT/schemas" "$ROOT/templates" "$ROOT/scripts" "$TMP/skill/" 2>/dev/null
+bash "$TMP/skill/scripts/build-all-in-one.sh" >/dev/null 2>&1
 
 bash "$CF" --dir "$TMP/skill" >/dev/null 2>&1
 [ $? -eq 0 ] || { echo "T1 FAIL: healthy skill should pass"; fail=1; }
