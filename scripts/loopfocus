@@ -40,6 +40,7 @@ LoopFocus CLI
   branch-new <name>                git worktree branch for an attempt
   handoff "<request>"              package the 6-part handoff
   conformance                      audit the skill itself
+  build-all-in-one                 regenerate LOOPFOCUS_ALL_IN_ONE.md (for chat AIs)
 
   ci runs|failed-jobs|logs|rerun-failed|artifacts <id>   GitHub Actions controller
   ci-matrix <run-id>               parse CI jobs into failure domains
@@ -82,6 +83,7 @@ case "$cmd" in
   branch-new) node "$ROOT/scripts/git-state.js" worktree-new "$@" ;;
   handoff) bash "$ROOT/scripts/handoff.sh" "$@" ;;
   conformance) bash "$ROOT/scripts/loopfocus-conformance.sh" ;;
+  build-all-in-one) bash "$ROOT/scripts/build-all-in-one.sh" ;;
   ci) node "$ROOT/scripts/ci-controller.js" "$@" ;;
   ci-matrix) node "$ROOT/scripts/ci-matrix.js" "$@" ;;
   flaky-check) node "$ROOT/scripts/flaky-check.js" "$@" ;;

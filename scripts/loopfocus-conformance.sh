@@ -44,6 +44,7 @@ done
 for f in templates/state.md.template templates/ledger.md.template templates/dod.md.template; do
   [ -f "$f" ] || report "missing template: $f"
 done
+[ -f LOOPFOCUS_ALL_IN_ONE.md ] || report "missing all-in-one: run scripts/build-all-in-one.sh"
 
 header "schemas valid JSON"
 for s in schemas/*.json; do
