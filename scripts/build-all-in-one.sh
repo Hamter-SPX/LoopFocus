@@ -59,6 +59,19 @@ OUT="$ROOT/LOOPFOCUS_ALL_IN_ONE.md"
   echo
   echo "---"
   echo
+  echo "# Part 4c — Analysis Intelligence Mode (IDENTITY + DOCS + 291 systems in 9 layers)"
+  cat "$ROOT/modes/analysis-intelligence/IDENTITY.md"
+  cat "$ROOT/modes/analysis-intelligence/DOCS.md"
+  for layer in L1-understanding L2-causal L3-evidence L4-adversarial L5-systems L6-decision L7-prediction L8-formal L9-discovery; do
+    for f in "$ROOT"/modes/analysis-intelligence/references/$layer/*.md; do
+      echo
+      echo "## $layer/$(basename "$f" .md)"
+      cat "$f"
+    done
+  done
+  echo
+  echo "---"
+  echo
   echo "# Part 5 — Domain Packs (stack knowledge)"
   for f in "$ROOT"/domains/*.md; do
     echo
