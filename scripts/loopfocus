@@ -49,6 +49,12 @@ LoopFocus CLI
   constitution-check               block proposals violating the Security Constitution
   risk-score <args>                two-axis severity × confidence
   evidence-check --file <f>        validate the 7 evidence fields of a finding
+  world-model init|check|show       Security World Model lifecycle
+  trust-entropy                    trust chaos score + top contributors
+  blast-radius                     component fan-out/fan-in + crown jewels
+  capability-graph                 transitive agent capability overreach
+  semantic-diff <args>             security model delta between versions
+  counterexample <args>            safety claims must survive falsification attempts
 
   ci runs|failed-jobs|logs|rerun-failed|artifacts <id>   GitHub Actions controller
   ci-matrix <run-id>               parse CI jobs into failure domains
@@ -100,6 +106,12 @@ case "$cmd" in
   constitution-check) bash "$ROOT/scripts/constitution-check.sh" ;;
   risk-score) node "$ROOT/scripts/risk-score.js" "$@" ;;
   evidence-check) node "$ROOT/scripts/evidence-check.js" "$@" ;;
+  world-model) node "$ROOT/scripts/world-model.js" "$@" ;;
+  trust-entropy) node "$ROOT/scripts/trust-entropy.js" "$@" ;;
+  blast-radius) node "$ROOT/scripts/blast-radius.js" "$@" ;;
+  capability-graph) node "$ROOT/scripts/capability-graph.js" "$@" ;;
+  semantic-diff) node "$ROOT/scripts/semantic-diff.js" "$@" ;;
+  counterexample) node "$ROOT/scripts/counterexample.js" "$@" ;;
   ci) node "$ROOT/scripts/ci-controller.js" "$@" ;;
   ci-matrix) node "$ROOT/scripts/ci-matrix.js" "$@" ;;
   flaky-check) node "$ROOT/scripts/flaky-check.js" "$@" ;;

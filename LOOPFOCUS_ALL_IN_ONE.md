@@ -1,6 +1,6 @@
 # LOOPFOCUS — All-In-One Reference
 
-> Built: 2026-08-15T21:23Z | Source: github.com/Hamter-SPX/LoopFocus | Version: 0.7.0
+> Built: 2026-08-15T21:41Z | Source: github.com/Hamter-SPX/LoopFocus | Version: 0.7.0
 > This file is COMPLETE and SELF-CONTAINED. A chat AI with no file access can follow everything in it.
 
 ---
@@ -9570,6 +9570,24 @@ PROVEN:
 UNKNOWN: none
 
 NEXT: none
+```
+
+### world-model.json
+```
+# .loopfocus/world-model.json — Security World Model
+# สร้างด้วย: loopfocus world-model init | ตรวจด้วย: loopfocus world-model check
+{
+  "system": "<ชื่อระบบ>",
+  "entities": [
+    { "type": "user|service|agent|api|data|secret|role|network|dependency|device", "name": "<ชื่อ>", "zone": "untrusted|semi-trusted|trusted", "anchor": "<file:line หรือ config path>", "classification": "<ถ้าเป็น data: public|internal|sensitive|secret|crown-jewel>" }
+  ],
+  "edges": [
+    { "from": "<entity>", "to": "<entity>", "kind": "trust|privilege|data-flow", "reason": "<ทำไม edge นี้ต้องมี — เหตุผลที่บันทึกได้>", "verified": false, "assumption": "A1|null" }
+  ],
+  "invariants": [
+    "<กฎความปลอดภัยที่ห้ามละเมิด>"
+  ]
+}
 ```
 
 ---
