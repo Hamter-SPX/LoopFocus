@@ -55,6 +55,12 @@ LoopFocus CLI
   capability-graph                 transitive agent capability overreach
   semantic-diff <args>             security model delta between versions
   counterexample <args>            safety claims must survive falsification attempts
+  analysis-router "<problem>"      intent detection + engine composition + level
+  epistemic-check --file <f>      every claim must carry its class
+  conclusion-score --file <f>     reliability score + sensitivity
+  question-engine --file <f>      rank questions by information value
+  mesh-run "<p>" <analysts>       blind round-1 analyst dispatch
+  counterfactual-run --file <f>   assumption stress testing
 
   ci runs|failed-jobs|logs|rerun-failed|artifacts <id>   GitHub Actions controller
   ci-matrix <run-id>               parse CI jobs into failure domains
@@ -112,6 +118,12 @@ case "$cmd" in
   capability-graph) node "$ROOT/scripts/capability-graph.js" "$@" ;;
   semantic-diff) node "$ROOT/scripts/semantic-diff.js" "$@" ;;
   counterexample) node "$ROOT/scripts/counterexample.js" "$@" ;;
+  analysis-router) node "$ROOT/scripts/analysis-router.js" "$@" ;;
+  epistemic-check) node "$ROOT/scripts/epistemic-check.js" "$@" ;;
+  conclusion-score) node "$ROOT/scripts/conclusion-score.js" "$@" ;;
+  question-engine) node "$ROOT/scripts/question-engine.js" "$@" ;;
+  mesh-run) bash "$ROOT/scripts/mesh-run.sh" "$@" ;;
+  counterfactual-run) node "$ROOT/scripts/counterfactual-runner.js" "$@" ;;
   ci) node "$ROOT/scripts/ci-controller.js" "$@" ;;
   ci-matrix) node "$ROOT/scripts/ci-matrix.js" "$@" ;;
   flaky-check) node "$ROOT/scripts/flaky-check.js" "$@" ;;

@@ -61,7 +61,7 @@ for js in scripts/*.js; do
 done
 
 header "test suites"
-for t in test-verify test-gate test-genome test-toolbus test-security-exit test-sec-tools test-sec-engines; do
+for t in test-verify test-gate test-genome test-toolbus test-security-exit test-sec-tools test-sec-engines test-analysis-tools; do
   if [ -f "scripts/$t.sh" ]; then
     bash "scripts/$t.sh" >/dev/null 2>&1 && echo "  - $t: PASS" || report "$t: FAIL"
   fi
