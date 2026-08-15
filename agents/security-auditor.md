@@ -10,8 +10,8 @@
 ## Dispatch template
 
 ```
-Load the LoopFocus skill. Enter M3 Security Mode (announce it).
-Follow flow/security-audit-flow.md + references/security-mode.md + domains/Security.md.
+Load the LoopFocus skill. Enter M3 SecurityArch Mode (announce it).
+Follow flow/security-audit-flow.md + references/security-arch.md + domains/Security.md.
 Scope: <files/services/boundaries>
 Deliverables:
   1. 7-category coverage table (every category recorded, even empty)

@@ -1,6 +1,6 @@
 # Security Domain Pack
 
-The M3-mode reference condensed to stack-agnostic actions. Load with `references/security-mode.md` during any audit.
+The M3-mode reference condensed to stack-agnostic actions. Load with `references/security-arch.md` during any audit.
 
 ## The 7-category walk (never skip)
 

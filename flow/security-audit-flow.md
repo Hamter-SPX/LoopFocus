@@ -6,7 +6,7 @@
 
 ## Steps
 
-1. **LOCK** — scope of the audit (files/services/boundaries), profile DEEP. `references/security-mode.md`.
+1. **LOCK** — scope of the audit (files/services/boundaries), profile DEEP. `references/security-arch.md`.
 2. **Tool discovery + audit tools** — run the project's real audit command (npm audit etc.) early; results are evidence, not the audit.
 3. **Walk the 7-category checklist** — all of them, recording one ledger line per category even when empty.
 4. **Verify every finding** — file:line + repro or tool output. Exploitability verified before severity is assigned.

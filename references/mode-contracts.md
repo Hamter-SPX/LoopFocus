@@ -29,14 +29,15 @@ Every task runs in one mode. A mode is a contract: what this phase may do, what 
 - Closes when: DoD chain complete, gates pass, verify PASS
 - Flow: feature-build-flow
 
-## security (M3)
+## security-arch (M3, SecurityArch)
 
 - Trigger: security, audit, scan, vulnerab, cve, secure, pentest, ช่องโหว่
-- May: inspect everything, run audit tools, write findings
-- Must not: apply fixes without user selection (Fix Policy)
-- Gates: entry, context, assumption, artifact, completion
-- Closes when: 7 categories walked, findings evidenced, user asked about fixes
+- May: inspect everything, run every audit tool, write findings, build threat models, adversarial passes
+- Must not: apply fixes without user selection (Fix Policy); unverified findings; declare "secure"
+- Gates: entry, context, assumption, artifact, coverage, mutation, sast, completion
+- Closes when: 7 categories walked + Layer-2 scans (sast/fuzz/audit) + threat model + evidence per finding + user asked
 - Flow: security-audit-flow
+- Profile: DEEP always — SecurityArch does not run light
 
 ## review
 

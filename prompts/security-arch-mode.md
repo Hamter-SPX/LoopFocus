@@ -1,10 +1,10 @@
-# M3 Security Mode — dispatch prompt
+# M3 SecurityArch Mode — dispatch prompt
 
-Load the LoopFocus skill first, then enter M3 Security Mode (announce it).
+Load the LoopFocus skill first, then enter M3 SecurityArch Mode (announce it).
 
 Task: <describe the audit target — repo, service, files, or feature>
 
-Discipline required (references/security-mode.md, flow/security-audit-flow.md):
+Discipline required (references/security-arch.md, flow/security-audit-flow.md):
 1. LOCK: audit scope + invariants + profile DEEP.
 2. Run tool-discovery.sh + the project's real audit tool (npm audit / pip-audit / etc.).
 3. Walk the 7-category checklist — every category recorded, even empty ones.

@@ -450,7 +450,7 @@ State Machine = "จังหวะการทำงาน" (LOCK → EXPLORE �
 
 เปิดเมื่อสั่งเท่านั้น:
 
-- **M3 Security Mode**: สแกนช่องโหว่/จุดเสี่ยง security — injection, auth bypass, secret leakage, insecure dependency, permission misconfig, data exposure + ออกรายงาน severity + เสนอวิธีแก้ (ใช้ Loop Strategy + SkillFocus เต็มรูปแบบ)
+- **M3 SecurityArch Mode**: สแกนช่องโหว่/จุดเสี่ยง security — injection, auth bypass, secret leakage, insecure dependency, permission misconfig, data exposure + ออกรายงาน severity + เสนอวิธีแก้ (ใช้ Loop Strategy + SkillFocus เต็มรูปแบบ)
 - **M4 Build Mode**: สร้าง feature ใหม่ — ล็อก requirement (Goal Lock + Intent Anchor), ออกแบบก่อนเขียน (Predictive + Canvas), สร้าง DoD Graph, เขียนไป verify ไป ไม่มโน ไม่ลุกลาม scope
 
 ## 7. ความสามารถเสริม (เรียกใช้ได้ตลอด)

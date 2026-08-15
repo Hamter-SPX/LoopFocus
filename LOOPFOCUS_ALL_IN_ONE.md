@@ -1,6 +1,6 @@
 # LOOPFOCUS — All-In-One Reference
 
-> Built: 2026-08-15T20:24Z | Source: github.com/Hamter-SPX/LoopFocus | Version: 0.7.0
+> Built: 2026-08-15T20:30Z | Source: github.com/Hamter-SPX/LoopFocus | Version: 0.7.0
 > This file is COMPLETE and SELF-CONTAINED. A chat AI with no file access can follow everything in it.
 
 ---
@@ -124,7 +124,7 @@ Every task runs in a mode. A mode is a contract: what may be done, what gates pr
 
 | Mode | Trigger words | Extra discipline | Reference |
 |---|---|---|---|
-| **M3 — Security** | security, audit, scan, vulnerab, CVE, secure | 7-category coverage checklist, severity taxonomy, exploitability evidence | `references/security-mode.md` + `flow/security-audit-flow.md` |
+| **M3 — SecurityArch** | security, audit, scan, vulnerab, CVE, secure | intense: 7-category checklist + Layer-2 scans (sast/fuzz/audit) + threat model + adversarial pass, DEEP always | `references/security-arch.md` + `flow/security-audit-flow.md` |
 | **M4 — Build** | build, feature, add, implement new | Intent Anchor, DoD graph, Canvas + Predictive before code | `references/build-mode.md` + `flow/feature-build-flow.md` |
 
 Announce every mode crossing so the user can stop it. `resolve`-style routing: pick the mode from trigger words; entering no mode at all is fine for small fixes — default discipline still applies.
@@ -644,23 +644,23 @@ The predictive pass runs BEFORE the first code edit. It feeds: the DoD graph (pr
 - Predicting only Critical-scale catastrophes (small, likely bugs matter more)
 - Not comparing predictions to what actually broke afterward
 
-## Security Mode
-# M3 — Security Mode
+## Security Arch
+# SecurityArch (M3) — the intense security mode
 
-Trigger words: security, audit, scan, vulnerab, CVE, secure, pentest. Announced on entry.
+Trigger words: security, audit, scan, vulnerab, CVE, secure, pentest, ช่องโหว่. Announced on entry. Profile: DEEP, always — SecurityArch does not run light.
 
 ## Mode contract
 
-- May: inspect everything, run audit tools, write findings, propose fixes.
-- Must not: apply fixes without the user's selection (Fix Policy).
-- Gates that produce evidence: entry, context, assumption (exploitability claims), test (after any fix), artifact (reports), completion.
-- Closes when: all 7 checklist categories walked, every finding carries evidence, the user has been asked about fixes, ledger + genome recorded.
+- May: inspect everything, run every audit tool, write findings, build threat models, run adversarial passes against the code's defenses.
+- Must not: apply fixes without the user's selection (Fix Policy); report unverified suspicions as findings; declare anything "secure" — only "checked, with these tools, on this version".
+- Gates that produce evidence: entry, context, assumption (exploitability claims), coverage, mutation, sast, artifact, completion.
+- Closes when: all 7 checklist categories walked + Layer-2 machine scans run (sast / fuzz / audit) + threat model drawn + every finding carries evidence + the user has been asked about fixes + ledger and genome recorded.
 
 ## The 7-Category Coverage Checklist (walk ALL, even expecting nothing)
 
 1. **Injection** — SQL, NoSQL, command, template, path traversal, header injection
 2. **AuthN/AuthZ** — hardcoded secrets, weak comparison/type juggling, missing auth, IDOR, mass assignment
-3. **Secret leakage** — hardcoded keys, .env committed, tokens in logs, secrets in client bundles
+3. **Secret leakage** — hardcoded keys, .env committed, tokens in logs, secrets in client bundles, git history scan
 4. **Dependency risk** — run the project's audit tool (npm audit / pip-audit / cargo audit / govulncheck) and read the reachable advisories
 5. **Transport/config** — TLS, security headers, CORS, file permissions, rate limiting
 6. **Data exposure** — PII, sensitive unauthenticated endpoints, error messages leaking internals
@@ -668,7 +668,7 @@ Trigger words: security, audit, scan, vulnerab, CVE, secure, pentest. Announced 
 
 Recording: one ledger line per category, "checked — n findings" or "checked — none". An unlisted category is a gap, not a zero.
 
-## Layer 2 — machine scans (run in DEEP profile, attach output as evidence)
+## Layer 2 — machine scans (mandatory in SecurityArch, output = evidence)
 
 ```bash
 loopfocus sast          # curated static rules: SQL concat, eval/exec, unsafe HTML,
@@ -676,13 +676,20 @@ loopfocus sast          # curated static rules: SQL concat, eval/exec, unsafe HT
                         # every finding: file:line + rule + severity; Critical = blocking
 loopfocus fuzz-check    # go: go test -fuzz=. -fuzztime=10s | python: hypothesis
                         # a crashing input = FAIL (evidence for injection/parsing findings)
+loopfocus discover      # then run the project's real audit tool (npm audit etc.)
 ```
 
 The scans are evidence generators, not certifications — findings still need file:line + reproduction before they enter the report. A clean scan says exactly what rules were run; it never says "secure".
 
+## Layer 3 — threat model + adversarial pass (the "โหด" layer)
+
+1. **Threat model canvas** (mandatory for any surface that handles input/credentials): draw the entry points, the trust boundaries, what an attacker controls, and what damage a compromise at each boundary causes. `references/canvas.md` applies — no boxes for code you have not read.
+2. **Adversarial pass**: for every defense you find, attempt to defeat it (reproduce, not speculate): the loose `==` token → try the array coercion; the parameterized query → try to break out; the rate limit → try to bypass. A defense that survives your best attempt earns its finding's confidence level.
+3. **Mutation check on security tests**: if the project has tests pinning a vuln fix, run `loopfocus mutation-test` — a security regression test that a mutant survives is decoration, not protection.
+
 ## Evidence bar
 
-Every finding = `file:line` + a reproduction OR the audit tool's output. An unverified suspicion is an UNKNOWN in state.md, never a finding. Exploitability claims (remote? unauth?) are verified before being written — a finding without exploitability is a severity guess.
+Every finding = `file:line` + a reproduction OR the audit tool's output. An unverified suspicion is an UNKNOWN in state.md, never a finding. Exploitability claims (remote? unauth?) are verified before being written.
 
 ## Severity taxonomy
 
@@ -696,9 +703,9 @@ Every finding = `file:line` + a reproduction OR the audit tool's output. An unve
 
 Severity comes from exploitability, not from how scary the name sounds.
 
-## Fix policy inside M3
+## Fix policy inside SecurityArch
 
-Findings → severity-ordered list → ask the user which to fix. Fixes follow the normal state machine (hypothesis → minimal change → test → regression check). Security fixes are never "improvements" — each is its own goal-locked task with its own DoD chain.
+Findings → severity-ordered list → ask the user which to fix. Fixes follow the normal state machine (hypothesis → minimal change → test → regression check) and each fix is its own goal-locked task with a DoD chain whose regression test reproduces the exploit RED before the fix and stays GREEN after.
 
 ## Anti-patterns
 
@@ -707,6 +714,7 @@ Findings → severity-ordered list → ask the user which to fix. Fixes follow t
 - Upgrading dependencies as one giant diff (one fix, one verification, per finding)
 - Fixing a vuln without a regression test that pins the exploit
 - Claiming "secure" — say what was verified, with what tool, on what version
+- Skipping the threat model because "it is a small app" — small apps ship the same bugs
 
 ## Build Mode
 # M4 — Build Mode
@@ -3462,7 +3470,7 @@ NEXT PROOF:     refresh succeeds against the migrated backend
 
 ## Steps
 
-1. **LOCK** — scope of the audit (files/services/boundaries), profile DEEP. `references/security-mode.md`.
+1. **LOCK** — scope of the audit (files/services/boundaries), profile DEEP. `references/security-arch.md`.
 2. **Tool discovery + audit tools** — run the project's real audit command (npm audit etc.) early; results are evidence, not the audit.
 3. **Walk the 7-category checklist** — all of them, recording one ledger line per category even when empty.
 4. **Verify every finding** — file:line + repro or tool output. Exploitability verified before severity is assigned.
@@ -3519,14 +3527,15 @@ Every task runs in one mode. A mode is a contract: what this phase may do, what 
 - Closes when: DoD chain complete, gates pass, verify PASS
 - Flow: feature-build-flow
 
-## security (M3)
+## security-arch (M3, SecurityArch)
 
 - Trigger: security, audit, scan, vulnerab, cve, secure, pentest, ช่องโหว่
-- May: inspect everything, run audit tools, write findings
-- Must not: apply fixes without user selection (Fix Policy)
-- Gates: entry, context, assumption, artifact, completion
-- Closes when: 7 categories walked, findings evidenced, user asked about fixes
+- May: inspect everything, run every audit tool, write findings, build threat models, adversarial passes
+- Must not: apply fixes without user selection (Fix Policy); unverified findings; declare "secure"
+- Gates: entry, context, assumption, artifact, coverage, mutation, sast, completion
+- Closes when: 7 categories walked + Layer-2 scans (sast/fuzz/audit) + threat model + evidence per finding + user asked
 - Flow: security-audit-flow
+- Profile: DEEP always — SecurityArch does not run light
 
 ## review
 
@@ -3752,7 +3761,7 @@ audit_cmd=cargo audit
 ## Security
 # Security Domain Pack
 
-The M3-mode reference condensed to stack-agnostic actions. Load with `references/security-mode.md` during any audit.
+The M3-mode reference condensed to stack-agnostic actions. Load with `references/security-arch.md` during any audit.
 
 ## The 7-category walk (never skip)
 

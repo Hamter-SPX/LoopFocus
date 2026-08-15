@@ -8,7 +8,7 @@ out=$(node "$S/mode.js" resolve "help me fix the login bug")
 echo "$out" | grep -q '"mode":"debug"' || { echo "T1 FAIL: fix bug should resolve to debug"; fail=1; }
 
 out=$(node "$S/mode.js" resolve "security audit please")
-echo "$out" | grep -q '"mode":"security"' || { echo "T2 FAIL: audit should resolve to security"; fail=1; }
+echo "$out" | grep -q '"mode":"security-arch"' || { echo "T2 FAIL: audit should resolve to security-arch"; fail=1; }
 
 out=$(node "$S/mode.js" resolve "build a new feature for checkout")
 echo "$out" | grep -q '"mode":"build"' || { echo "T3 FAIL: feature should resolve to build"; fail=1; }

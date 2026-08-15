@@ -31,12 +31,12 @@ const MODES = {
     safe_unasked: false,
     flow: "flow/feature-build-flow.md",
   },
-  security: {
+  "security-arch": {
     trigger: ["security", "audit", "scan", "vulnerab", "cve", "secure", "pentest", "ช่องโหว่"],
-    may: "inspect everything, run audit tools, write findings",
-    must_not: "apply fixes without user selection (Fix Policy)",
-    gates: ["entry", "context", "assumption", "artifact", "completion"],
-    closes_when: "7 categories walked, findings evidenced, user asked about fixes",
+    may: "inspect everything, run every audit tool, write findings, build threat models",
+    must_not: "apply fixes without user selection (Fix Policy); report unverified suspicions as findings; declare anything 'secure'",
+    gates: ["entry", "context", "assumption", "artifact", "coverage", "mutation", "sast", "completion"],
+    closes_when: "7 categories walked + Layer-2 machine scans run (sast/fuzz/audit) + threat model drawn + every finding evidenced + user asked about fixes",
     safe_unasked: false,
     flow: "flow/security-audit-flow.md",
   },
