@@ -21,7 +21,7 @@ bash "$CF" --dir "$TMP/skill" >/dev/null 2>&1
 [ $? -ne 0 ] || { echo "T3 FAIL: broken schema should fail"; fail=1; }
 
 cp -R "$ROOT/SKILL.md" "$ROOT/references" "$ROOT/flow" "$ROOT/schemas" "$ROOT/templates" "$ROOT/scripts" "$TMP/skill/" 2>/dev/null
-sed -i '' 's/^name: loopfocus/name: bad_name_with_underscore/' "$TMP/skill/SKILL.md"
+sed -i.bak 's/^name: loopfocus/name: bad_name_with_underscore/' "$TMP/skill/SKILL.md" && rm -f "$TMP/skill/SKILL.md.bak"
 bash "$CF" --dir "$TMP/skill" >/dev/null 2>&1
 [ $? -ne 0 ] || { echo "T4 FAIL: invalid skill name should fail"; fail=1; }
 
