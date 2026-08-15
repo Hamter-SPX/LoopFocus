@@ -135,7 +135,7 @@ if (sub === "resolve") {
   for (const g of m.gates) {
     if (!state.gates_ran || !state.gates_ran.includes(g)) problems.push(`gate not run: ${g}`);
   }
-  if (!state.recheck_pass) problems.push("re-check pass not done");
+  if (!state.self_audit_pass) problems.push("self-audit pass not done");
   if (problems.length === 0) {
     console.log(JSON.stringify({ verdict: "PASS", mode: name }));
     process.exit(0);

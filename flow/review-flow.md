@@ -2,7 +2,7 @@
 
 **Why:** reviewing is a loop task too — coverage, evidence, and no silent decisions apply to reading code as much as to writing it.
 
-**When:** reviewing code, PRs, someone else's change, or re-reviewing your own work (the re-check pass).
+**When:** reviewing code, PRs, someone else's change, or re-reviewing your own work (the self-audit pass).
 
 ## Steps
 

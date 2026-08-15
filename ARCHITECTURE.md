@@ -63,7 +63,7 @@
 | Layer | Files | Machine arms |
 |---|---|---|
 | Goal Engine | `references/goal/` (16 systems) | scope/mutation gates, goal-lock in state.md |
-| Reasoning Engine | `references/reasoning/` (10) | hypothesis ledger format, recheck.js |
+| Reasoning Engine | `references/reasoning/` (10) | hypothesis ledger format, self-audit.js |
 | Execution Control | `references/state-memory/` (7) | git-state.js worktrees, checkpoint gate |
 | Progress Control | `references/loop-control/` (9) + `references/progress/` (5) | convergence.js, loop-fingerprint.js, entropy.js, normalize-signal.js |
 | Gate Engine | `references/gate-engine.md` (26 gates) | gate-runner.sh (9 machine gates), profiles |
@@ -83,7 +83,7 @@
 7. **Decide** → `convergence.js` / `entropy.js` → continue/mutate/rollback
 8. **Record** → `loop-genome.js` (attempt, delta, ban, winner)
 9. **Gate** → `gate-runner.sh` (profile's machine gates)
-10. **Verify** → `loopfocus-verify.sh` (completion) + `recheck.js` (claims)
+10. **Verify** → `loopfocus-verify.sh` (completion) + `self-audit.js` (claims)
 
 ## Escalation paths
 

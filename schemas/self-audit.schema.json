@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "LoopFocus Re-check Report",
-  "description": "recheck.js output — adversarial pass over claims",
+  "description": "self-audit.js output — adversarial pass over claims",
   "type": "object",
   "required": ["checked", "unbound", "report"],
   "properties": {

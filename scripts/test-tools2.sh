@@ -15,10 +15,10 @@ printf 'test output\n' > "$TMP/result.log"
 [ -f "$TMP/.loopfocus/evidence/attempt-3-local:test.log" ] || { echo "T3 FAIL: artifact naming"; fail=1; }
 
 printf 'the fix is complete | /nonexistent/evidence.log\n' > "$TMP/claims.txt"
-(cd "$TMP" && node "$S/recheck.js" --claims claims.txt) >/dev/null 2>&1
+(cd "$TMP" && node "$S/self-audit.js" --claims claims.txt) >/dev/null 2>&1
 [ $? -eq 1 ] || { echo "T4 FAIL: unbound claim should fail recheck"; fail=1; }
 printf 'tests pass 14/14 | result.log\n' > "$TMP/claims.txt"
-(cd "$TMP" && node "$S/recheck.js" --claims claims.txt) >/dev/null 2>&1
+(cd "$TMP" && node "$S/self-audit.js" --claims claims.txt) >/dev/null 2>&1
 [ $? -eq 0 ] || { echo "T5 FAIL: bound claim should pass recheck"; fail=1; }
 
 mkdir -p "$TMP/.loopfocus"

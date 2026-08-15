@@ -35,7 +35,7 @@ LoopFocus CLI
   state                            git state: changed files, commits, diff stat
   state-check                      validate state.md format
   distill                          generate the Current Truth 4-line block
-  recheck --claims <file>          adversarial self-review pass
+  self-audit --claims <file>          adversarial self-review pass
   artifact save|list|clean <args>  evidence collector with attempt IDs
   branch-new <name>                git worktree branch for an attempt
   handoff "<request>"              package the 6-part handoff
@@ -77,7 +77,7 @@ case "$cmd" in
   state) node "$ROOT/scripts/git-state.js" ;;
   state-check) bash "$ROOT/scripts/state-check.sh" ;;
   distill) bash "$ROOT/scripts/distill.sh" ;;
-  recheck) node "$ROOT/scripts/recheck.js" "$@" ;;
+  self-audit) node "$ROOT/scripts/self-audit.js" "$@" ;;
   artifact) bash "$ROOT/scripts/artifact.sh" "$@" ;;
   branch-new) node "$ROOT/scripts/git-state.js" worktree-new "$@" ;;
   handoff) bash "$ROOT/scripts/handoff.sh" "$@" ;;

@@ -3,11 +3,11 @@
   "title": "LoopFocus Mode State",
   "description": ".loopfocus/mode-state.json — what mode check consumes",
   "type": "object",
-  "required": ["mode", "goal_locked", "gates_ran", "recheck_pass"],
+  "required": ["mode", "goal_locked", "gates_ran", "self_audit_pass"],
   "properties": {
     "mode": { "enum": ["analyze", "debug", "build", "security", "review", "recover", "ship", "author-skill"] },
     "goal_locked": { "type": "boolean" },
     "gates_ran": { "type": "array", "items": { "type": "string" } },
-    "recheck_pass": { "type": "boolean" }
+    "self_audit_pass": { "type": "boolean" }
   }
 }

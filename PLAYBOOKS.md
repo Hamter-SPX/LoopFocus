@@ -83,7 +83,7 @@ Mode: **ship**
 
 ```bash
 loopfocus dod && loopfocus gates && loopfocus verify
-loopfocus recheck --claims claims.txt    # adversarial pass on your own claims
+loopfocus self-audit --claims claims.txt    # adversarial pass on your own claims
 # present integration options — merge/push/discard are the USER's decisions
 ```
 

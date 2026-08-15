@@ -19,10 +19,10 @@ echo "$out" | grep -q '"mode":"analyze"' || { echo "T4 FAIL: question should res
 node "$S/mode.js" show debug | grep -q '"closes_when"' || { echo "T5 FAIL: show should print full contract"; fail=1; }
 
 mkdir -p "$TMP/.loopfocus"
-printf '{"mode":"debug","goal_locked":true,"gates_ran":["entry","context","mutation","build","test","regression","progress","repeat","completion"],"recheck_pass":true}' > "$TMP/.loopfocus/mode-state.json"
+printf '{"mode":"debug","goal_locked":true,"gates_ran":["entry","context","mutation","build","test","regression","progress","repeat","completion"],"self_audit_pass":true}' > "$TMP/.loopfocus/mode-state.json"
 (cd "$TMP" && node "$S/mode.js" check debug) | grep -q '"verdict":"PASS"' || { echo "T6 FAIL: complete state should pass check"; fail=1; }
 
-printf '{"mode":"debug","goal_locked":false,"gates_ran":[],"recheck_pass":false}' > "$TMP/.loopfocus/mode-state.json"
+printf '{"mode":"debug","goal_locked":false,"gates_ran":[],"self_audit_pass":false}' > "$TMP/.loopfocus/mode-state.json"
 (cd "$TMP" && node "$S/mode.js" check debug) | grep -q '"verdict":"FAIL"' || { echo "T7 FAIL: incomplete state should fail check"; fail=1; }
 
 (cd "$TMP" && bash "$S/state-init.sh") >/dev/null 2>&1 || { echo "T8 FAIL: state-init should succeed"; fail=1; }

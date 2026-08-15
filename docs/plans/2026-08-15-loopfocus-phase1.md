@@ -182,7 +182,7 @@ description: Use when working on any development task in a repository - fixing b
 
 LoopFocus is the execution control discipline for agents. Every loop must have a reason, a state, and feedback — and must converge toward the goal. Looping until tokens run out is failure. Looping until the goal is reached is success.
 
-**Violating the letter of the rules is violating the spirit of the rules.**
+**A loophole is a violation. If the words of a rule let you skip it, the rule still applies.**
 
 ## When to Use
 

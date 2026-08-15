@@ -11,7 +11,7 @@ function getFlag(name) {
 
 const claimFile = getFlag("claims");
 if (!claimFile) {
-  console.error("usage: recheck.js --claims <file>");
+  console.error("usage: self-audit.js --claims <file>");
   console.error('claims file: one claim per line: "claim | evidence-path"');
   process.exit(2);
 }

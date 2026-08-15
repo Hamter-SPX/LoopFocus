@@ -71,7 +71,7 @@ loopfocus gates      # entry/build/static/test/regression/evidence-freshness/che
 ## Step 7 — Re-check + verify + genome winner
 
 ```bash
-loopfocus recheck --claims claims.txt   # claims bound to evidence
+loopfocus self-audit --claims claims.txt   # claims bound to evidence
 loopfocus verify                        # {"gate":"completion","status":"PASS",...,"ready_to_finish"}
 loopfocus genome query --class greeting-undefined
 # winner strategy: dependency-inspection | banned: caller-patch

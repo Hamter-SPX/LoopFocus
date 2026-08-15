@@ -4,7 +4,7 @@ All notable changes to LoopFocus.
 
 ## 2026-08-15 — v0.6.0 "FVEP-density"
 
-- Added 11 tools: canvas, artifact, recheck, distill, state-check, ci-matrix, flaky-check, sandbox, adaptive-ci, otel-observe, e2e (tool count 19 → 30)
+- Added 11 tools: canvas, artifact, self-audit, distill, state-check, ci-matrix, flaky-check, sandbox, adaptive-ci, otel-observe, e2e (tool count 19 → 30)
 - Added test suite 9 (test-tools2.sh) — all suites green
 - Added root docs: README, README_TH, PLAYBOOKS, GOLDEN_PATH, ARCHITECTURE, CHANGELOG, LICENSE
 

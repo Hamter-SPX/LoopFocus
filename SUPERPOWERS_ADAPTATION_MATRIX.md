@@ -6,12 +6,12 @@ How LoopFocus maps onto existing agentic-discipline skills (superpowers family) 
 |---|---|---|
 | systematic-debugging | Loop Strategy Ladder (S1-S6) + Stuck Detector | extends: the ladder adds escalation structure; the detector mechanizes "stuck vs hard" |
 | test-driven-development | RED-GREEN-REFACTOR for skills (author-skill mode) + TDD evidence protocol | reuses: same cycle, same Iron Law; LoopFocus adds the conformance gate as the machine check |
-| verification-before-completion | Completion Gate + loopfocus-verify.sh + recheck.js | extends: adds machine-run gates with JSON verdicts instead of self-discipline alone |
+| verification-before-completion | Completion Gate + loopfocus-verify.sh + self-audit.js | extends: adds machine-run gates with JSON verdicts instead of self-discipline alone |
 | root-cause-tracing (superpowers) | S2 Root-cause Trace + Hypothesis Ledger + Counterfactual Check | extends: adds the ledger format (write before act), counterfactual discrimination, confidence decay |
 | writing-skills | author-skill mode + baseline scenarios + conformance | reuses: pressure scenarios, SDO rules (description = triggers only), token efficiency; adds conformance audit |
 | writing-plans / executing-plans | Plan Gate + DoD Graph + critical-path.js | extends: adds the completion-condition chain and the machine DoD walker |
 | subagent-driven-development | Handoff Protocol + Recovery Capsule + Branch-and-Recover | extends: the six-part handoff package is the dispatch contract; worktrees are the branch mechanism |
-| receiving-code-review | Re-check pass + recheck.js | extends: self-review as an adversarial audit with bound claims |
+| receiving-code-review | Self-audit pass + self-audit.js | extends: self-review as an adversarial audit with bound claims |
 | using-git-worktrees | git-state.js worktree-new / branch-and-recover | reuses: same worktree machinery, wired into the branch attempt protocol |
 | dispatching-parallel-agents | Branch-and-Recover (A/B/C attempts) | reuses: parallel isolation, adds evidence-bar comparison before choosing |
 | brainstorming | Canvas + Predictive Analysis + Intent Anchor | extends: intent anchoring before requirements, canvas before implementation, prediction before coding |

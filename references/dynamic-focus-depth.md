@@ -19,7 +19,7 @@ Re-evaluated at every loop boundary, escalated by the No-Progress Tax and the St
 | L1 | Quick | small, clear task | LIGHT profile, few loops, minimal ceremony |
 | L3 | Persistent | first obstacles | NORMAL profile, full ledger, ladder S1-S4 |
 | L5 | Deep | repeated failure / coupled code / security | DEEP profile, pre-mortem, branch-and-recover, worktrees |
-| L8 | Extreme | repeated non-convergence, system-wide change | everything + independent re-check pass, S6 readiness |
+| L8 | Extreme | repeated non-convergence, system-wide change | everything + independent self-audit pass, S6 readiness |
 
 ## Rules
 
