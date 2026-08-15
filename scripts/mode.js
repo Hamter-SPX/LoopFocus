@@ -4,7 +4,7 @@ const fs = require("fs");
 const path = require("path");
 
 const MODES = {
-  analyze: {
+  "analysis-intelligence": {
     trigger: ["analyze", "explain", "what", "why", "how does", "review the code", "understand", "อธิบาย", "คืออะไร"],
     may: "read, run read-only commands, explain, draw canvases",
     must_not: "edit files, install dependencies, change state",
@@ -88,7 +88,7 @@ function resolve(text) {
     }
     if (score > 0) scores[name] = score;
   }
-  if (Object.keys(scores).length === 0) return { mode: "analyze", matched: [], note: "no trigger — analyze is the only always-safe mode" };
+  if (Object.keys(scores).length === 0) return { mode: "analysis-intelligence", matched: [], note: "no trigger — analysis-intelligence is the only always-safe mode" };
   const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
   if (sorted.length > 1 && sorted[0][1] === sorted[1][1]) {
     console.error(JSON.stringify({ error: "ambiguous", candidates: sorted.filter(([, s]) => s === sorted[0][1]).map(([n]) => n) }));

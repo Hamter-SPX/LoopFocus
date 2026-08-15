@@ -1,6 +1,6 @@
 # LOOPFOCUS — All-In-One Reference
 
-> Built: 2026-08-15T21:41Z | Source: github.com/Hamter-SPX/LoopFocus | Version: 0.7.0
+> Built: 2026-08-15T21:44Z | Source: github.com/Hamter-SPX/LoopFocus | Version: 0.7.0
 > This file is COMPLETE and SELF-CONTAINED. A chat AI with no file access can follow everything in it.
 
 ---
@@ -3428,7 +3428,7 @@ NEXT PROOF:     refresh succeeds against the migrated backend
 
 Every task runs in one mode. A mode is a contract: what this phase may do, what it must not do yet, which gates produce its evidence, and what must be true before it can close. Default behaviors (state machine, ledger, gates, SkillFocus) apply in every mode. Announce every mode crossing.
 
-## analyze — (safe unasked)
+## analysis-intelligence — Analysis Intelligence (safe unasked)
 
 - Trigger: explain, what/why/how questions, "understand", อธิบาย
 - May: read, explain, draw structure explanations

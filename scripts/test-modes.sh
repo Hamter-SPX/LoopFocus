@@ -14,7 +14,7 @@ out=$(node "$S/mode.js" resolve "build a new feature for checkout")
 echo "$out" | grep -q '"mode":"build"' || { echo "T3 FAIL: feature should resolve to build"; fail=1; }
 
 out=$(node "$S/mode.js" resolve "how does this router work?")
-echo "$out" | grep -q '"mode":"analyze"' || { echo "T4 FAIL: question should resolve to analyze"; fail=1; }
+echo "$out" | grep -q '"mode":"analysis-intelligence"' || { echo "T4 FAIL: question should resolve to analyze"; fail=1; }
 
 node "$S/mode.js" show debug | grep -q '"closes_when"' || { echo "T5 FAIL: show should print full contract"; fail=1; }
 

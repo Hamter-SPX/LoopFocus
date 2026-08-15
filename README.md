@@ -9,7 +9,7 @@
 | Layer | Contents |
 |---|---|
 | **Discipline** (SKILL.md + 62 references) | Focus State Machine, 5 Hard Rules, Gate Engine (26 gates), 61 systems as deep references, 6 flows |
-| **Modes** (8) | analyze · debug · build · security · review · recover · ship · author-skill — with machine-checkable contracts |
+| **Modes** (8) | analysis-intelligence · debug · build · security · review · recover · ship · author-skill — with machine-checkable contracts |
 | **Tools** (30) | Unified CLI + mode engine, gates, loop intelligence (convergence/fingerprint/entropy), Loop Genome, Signal Normalizer, planning (DoD/predictive/critical-path), ToolBus (CI/Docker/Playwright/OTel), lifecycle (init/handoff/distill), self-audit |
 | **Templates + Schemas** | state / ledger / DoD templates, signal / gate / genome schemas |
 | **CI** | Real GitHub Actions workflow (conformance + 9 test suites + secret scan) + CI templates for user projects |

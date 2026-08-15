@@ -5,7 +5,7 @@
   "type": "object",
   "required": ["mode", "goal_locked", "gates_ran", "self_audit_pass"],
   "properties": {
-    "mode": { "enum": ["analyze", "debug", "build", "security-arch", "review", "recover", "ship", "author-skill"] },
+    "mode": { "enum": ["analysis-intelligence", "debug", "build", "security-arch", "review", "recover", "ship", "author-skill"] },
     "goal_locked": { "type": "boolean" },
     "gates_ran": { "type": "array", "items": { "type": "string" } },
     "self_audit_pass": { "type": "boolean" }
