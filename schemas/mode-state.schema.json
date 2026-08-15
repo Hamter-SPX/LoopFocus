@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "LoopFocus Mode State",
+  "description": ".loopfocus/mode-state.json — what mode check consumes",
+  "type": "object",
+  "required": ["mode", "goal_locked", "gates_ran", "recheck_pass"],
+  "properties": {
+    "mode": { "enum": ["analyze", "debug", "build", "security", "review", "recover", "ship", "author-skill"] },
+    "goal_locked": { "type": "boolean" },
+    "gates_ran": { "type": "array", "items": { "type": "string" } },
+    "recheck_pass": { "type": "boolean" }
+  }
+}

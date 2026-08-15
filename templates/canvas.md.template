@@ -1,0 +1,13 @@
+# LoopFocus Canvas — <topic>
+
+```mermaid
+flowchart LR
+  A["module A"]
+  B["module B"]
+  A -->|"<what travels>"| B
+```
+
+- change goes: <where>
+- touches: <what else>
+- must not break (invariants): <list>
+- read before drawing: <files actually read>

@@ -1,0 +1,4 @@
+{
+  "name": "golden-path",
+  "scripts": { "test": "node --test" }
+}

@@ -1,0 +1,14 @@
+{
+  "greeting-undefined": {
+    "attempts": [
+      { "n": 1, "strategy": "caller-patch", "result": "fail", "delta": 0, "current_failures": 1, "reason": "property access still undefined", "hypothesis": "destructuring was the problem" },
+      { "n": 2, "strategy": "caller-patch", "result": "fail", "delta": 0, "current_failures": 1, "reason": "fallback violated the contract", "hypothesis": "lib exports nothing usable" },
+      { "n": 3, "strategy": "dependency-inspection", "result": "success", "delta": 1, "current_failures": 0, "reason": "export key greeting->greet fixed", "hypothesis": "wrong export key in dependency" }
+    ],
+    "strategies": {
+      "caller-patch": { "fails": 2, "successes": 0, "banned": true },
+      "dependency-inspection": { "fails": 0, "successes": 1, "banned": false }
+    },
+    "winner": "dependency-inspection"
+  }
+}

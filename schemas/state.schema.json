@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "LoopFocus State",
+  "description": ".loopfocus/state.md content contract — parsed by state-check.sh and loopfocus-verify.sh",
+  "type": "object",
+  "required": ["goal", "profile", "unknown", "next"],
+  "properties": {
+    "goal": { "type": "string", "description": "the locked objective, one line" },
+    "invariants": { "type": "array", "items": { "type": "string" } },
+    "profile": { "enum": ["LIGHT", "NORMAL", "DEEP"] },
+    "done": { "type": "array", "items": { "type": "string" } },
+    "proven": { "type": "array", "items": { "type": "string" }, "description": "verified facts with evidence paths" },
+    "unknown": { "type": "string", "description": "must be 'none' at completion" },
+    "next": { "type": "string", "description": "must be 'none' or 'done' at completion" }
+  }
+}

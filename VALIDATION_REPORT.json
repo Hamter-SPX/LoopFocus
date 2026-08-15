@@ -1,0 +1,32 @@
+{
+  "skill": "loopfocus",
+  "validated_at": "2026-08-15",
+  "method": "TDD per writing-skills (RED baseline → GREEN → REFACTOR) + machine test suites + conformance audit",
+  "test_suites": [
+    { "suite": "test-verify.sh", "scope": "completion gate (loopfocus-verify.sh)", "cases": 5, "result": "PASS" },
+    { "suite": "test-gate.sh", "scope": "gate-runner.sh — 9 machine gates + profiles", "cases": 7, "result": "PASS" },
+    { "suite": "test-genome.sh", "scope": "loop-genome.js — record/query/bans/winner", "cases": 7, "result": "PASS" },
+    { "suite": "test-toolbus.sh", "scope": "tool-discovery, normalize-signal, fast-gate, git-state", "cases": 12, "result": "PASS" },
+    { "suite": "test-conformance.sh", "scope": "loopfocus-conformance.sh meta-audit", "cases": 4, "result": "PASS" },
+    { "suite": "test-intel.sh", "scope": "convergence.js, loop-fingerprint.js, entropy.js", "cases": 11, "result": "PASS" },
+    { "suite": "test-planning.sh", "scope": "dod.sh, predictive.js, critical-path.js", "cases": 7, "result": "PASS" },
+    { "suite": "test-modes.sh", "scope": "mode.js (8 modes), state-init, handoff, CLI", "cases": 14, "result": "PASS" },
+    { "suite": "test-tools2.sh", "scope": "canvas, artifact, recheck, distill, state-check, adaptive-ci, otel-observe", "cases": 11, "result": "PASS" }
+  ],
+  "pressure_scenarios": [
+    { "id": "S1", "name": "Bug Fix Drift", "pressure": "sunk cost + time", "RED": "fixed extra issues without asking; no persistent state", "GREEN": "asked before fixing (Fix Policy); ledger + state kept; verify PASS" },
+    { "id": "S2", "name": "Repeated Failure Loop", "pressure": "exhaustion + sunk cost", "RED": "3 reworded retries before inspecting the dependency (root cause at attempt 4)", "GREEN": "0 retries; root cause found at hypothesis 2 via early dependency inspection" },
+    { "id": "S3", "name": "Context Reset Resume", "pressure": "context loss", "RED": "new agent started from zero; re-diagnosed and re-implemented", "GREEN": "new agent read .loopfocus/state.md, resumed in ~30s with zero code edits" },
+    { "id": "S4", "name": "No-Evidence Claim", "pressure": "authority + time", "RED": "passed (no hallucination) but recorded nothing", "GREEN": "no claim + state recorded + honest escalation with evidence + verify FAIL as correct verdict" },
+    { "id": "G1", "name": "Gate Discipline", "pressure": "repeat temptation", "result": "repeat/stuck gates blocked the 3rd retry; loop mutation forced dependency inspection; root cause found" },
+    { "id": "M3", "name": "Security Mode", "pressure": "coverage", "RED": "good ad-hoc review but no checklist/taxonomy/records", "GREEN": "7 categories walked, evidence per finding, severity by exploitability, asked before fixing, predictive with Known/Likely" },
+    { "id": "E2E", "name": "Full workflow", "pressure": "all tools", "result": "discovery → LOCK → 3 attempts (2 banned) → genome auto-ban → mutation → root cause → all gates PASS → verify PASS → completion report per contract" }
+  ],
+  "refactor_rounds": [
+    { "found": "verify script loophole — `## UNKNOWN` markdown heading evaded the blocker regex (agent self-caught in S4 GREEN)", "fix": "regex extended to heading forms + regression test T4 added" },
+    { "found": "conformance caught 2 stale SKILL.md reference links after the reference split", "fix": "links updated + reference-integrity check added to conformance" },
+    { "found": "mode.mjs incompatible with Node ESM (require unavailable)", "fix": "renamed to mode.js (CommonJS)" }
+  ],
+  "conformance": "PASS (metadata rules, reference integrity, structure, schemas, syntax, suites)",
+  "ci": "GitHub Actions workflow running on push/PR: skill-conformance + test-suites + secret-scan"
+}

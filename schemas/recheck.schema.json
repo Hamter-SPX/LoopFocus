@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "LoopFocus Re-check Report",
+  "description": "recheck.js output — adversarial pass over claims",
+  "type": "object",
+  "required": ["checked", "unbound", "report"],
+  "properties": {
+    "checked": { "type": "integer" },
+    "unbound": { "type": "integer", "description": "claims without bound evidence — blocking" },
+    "report": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["claim", "verdict"],
+        "properties": {
+          "claim": { "type": "string" },
+          "verdict": { "enum": ["bound", "unbound"] },
+          "evidence": { "type": "string" },
+          "problems": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  }
+}

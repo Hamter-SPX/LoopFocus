@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "LoopFocus Handoff Package",
+  "description": "the six-part handoff contract (handoff.sh)",
+  "type": "object",
+  "required": ["goal_and_invariants", "constraints", "attempts", "failures", "evidence_paths", "request"],
+  "properties": {
+    "goal_and_invariants": { "type": "string" },
+    "constraints": { "type": "string" },
+    "attempts": { "type": "string", "description": "genome summary per problem class" },
+    "failures": { "type": "string", "description": "ledger actual-result lines" },
+    "evidence_paths": { "type": "array", "items": { "type": "string" } },
+    "request": { "type": "string", "description": "the specific ask of the receiver" },
+    "last_commit": { "type": "string" }
+  }
+}
