@@ -30,9 +30,9 @@ function save(db) {
   fs.writeFileSync(genomePath(), JSON.stringify(db, null, 2) + "\n");
 }
 
-function record(db, cls, strategy, result, delta, reason, hypothesis) {
+function record(db, cls, strategy, result, delta, reason, hypothesis, currentFailures) {
   const entry = db[cls] || { attempts: [], strategies: {}, winner: null };
-  entry.attempts.push({
+  const attempt = {
     n: entry.attempts.length + 1,
     strategy,
     result,
@@ -40,7 +40,11 @@ function record(db, cls, strategy, result, delta, reason, hypothesis) {
     reason,
     hypothesis,
     at: new Date().toISOString(),
-  });
+  };
+  if (currentFailures !== null && currentFailures !== undefined && currentFailures !== "") {
+    attempt.current_failures = Number(currentFailures);
+  }
+  entry.attempts.push(attempt);
   const st = entry.strategies[strategy] || { fails: 0, successes: 0, banned: false };
   if (result === "success") st.successes++;
   else st.fails++;
@@ -83,11 +87,12 @@ if (cmd === "record") {
   const delta = getFlag("delta") || "0";
   const reason = getFlag("reason") || "";
   const hypothesis = getFlag("hypothesis") || "";
+  const currentFailures = getFlag("current-failures");
   if (!cls || !strategy || !result) {
     console.error("record requires --class --strategy --result");
     process.exit(2);
   }
-  record(db, cls, strategy, result, delta, reason, hypothesis);
+  record(db, cls, strategy, result, delta, reason, hypothesis, currentFailures);
   save(db);
   console.log(`recorded: ${cls} #${db[cls].attempts.length} ${strategy} -> ${result}`);
 } else if (cmd === "query") {
