@@ -53,7 +53,7 @@ Every task runs in a mode. A mode is a contract: what may be done, what gates pr
 
 | Mode | Trigger words | Extra discipline | Reference |
 |---|---|---|---|
-| **M3 — SecurityArch** | security, audit, scan, vulnerab, CVE, secure | intense: 7-category checklist + Layer-2 scans (sast/fuzz/audit) + threat model + adversarial pass, DEEP always | `references/security-arch.md` + `flow/security-audit-flow.md` |
+| **M3 — SecurityArch** | security, audit, scan, vulnerab, CVE, secure | intense: 126 systems in 8 layers (World Mapping → Self-Challenging → Cross-Layer HW-SW) + Constitution + End-to-End Trust Proof, DEEP always | `modes/security-arch/DOCS.md` + `flow/security-audit-flow.md` |
 | **M4 — Build** | build, feature, add, implement new | Intent Anchor, DoD graph, Canvas + Predictive before code | `references/build-mode.md` + `flow/feature-build-flow.md` |
 
 Announce every mode crossing so the user can stop it. `resolve`-style routing: pick the mode from trigger words; entering no mode at all is fine for small fixes — default discipline still applies.
