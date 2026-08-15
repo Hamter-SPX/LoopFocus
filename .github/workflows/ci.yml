@@ -1,0 +1,47 @@
+name: LoopFocus CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  skill-conformance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Conformance gate (metadata + references + structure + schemas + syntax + suites)
+        run: bash scripts/loopfocus-conformance.sh
+
+  test-suites:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Verify suite (completion gate)
+        run: bash scripts/test-verify.sh
+      - name: Gate suite (gate-runner)
+        run: bash scripts/test-gate.sh
+      - name: Genome suite (loop-genome)
+        run: bash scripts/test-genome.sh
+      - name: ToolBus suite (discovery/normalize/fast-gate/git-state)
+        run: bash scripts/test-toolbus.sh
+      - name: Conformance meta-suite
+        run: bash scripts/test-conformance.sh
+
+  secret-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Block obvious secrets in history
+        run: |
+          if git log -p | grep -Eiq '(api[_-]?key|password|secret|token)[[:space:]]*[:=][[:space:]]*["'"'"']?[A-Za-z0-9]{16,}'; then
+            echo "::error::Possible secret in git history — rotate it"
+            exit 1
+          fi
+          echo "secret scan: clean"

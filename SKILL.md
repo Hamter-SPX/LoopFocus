@@ -89,7 +89,7 @@ S1 Direct Fix → S2 Root-cause Trace → S3 Reproduce Minimal Case
 → S4 Inspect Dependencies → S5 Alternative Implementation → S6 Escalate
 ```
 
-Details: `references/loop-control.md`.
+Details: `references/loop-control/loop-strategy-ladder.md`.
 
 ## Commitment Levels
 
@@ -100,7 +100,7 @@ L0 Observe → L1 Hypothesis → L2 Experiment → L3 Temporary Patch
 → L4 Confirmed Change → L5 Structural Change
 ```
 
-Jumping from L1 to L5 without supporting evidence is forbidden. Details: `references/reasoning-discipline.md`.
+Jumping from L1 to L5 without supporting evidence is forbidden. Details: `references/reasoning/commitment-levels.md`.
 
 ## Canvas (available anytime)
 
