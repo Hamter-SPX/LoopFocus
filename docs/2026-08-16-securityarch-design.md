@@ -1,7 +1,7 @@
-# SecurityArch — Design Spec v2
+# SecurityArch — Design Spec v3
 
 วันที่: 2026-08-16
-สถานะ: Draft v2 (67 ระบบ + 3 Signature Features + 5 ชั้น — รอรีวิวจากเจ้าของโปรเจกต์)
+สถานะ: Draft v3 (93 ระบบ 7 ชั้น + 9 Signature Features — รอรีวิวจากเจ้าของโปรเจกต์)
 ตำแหน่ง: โหมด M3 ของ LoopFocus — หน่วยสมบูรณ์ในตัว (มี Docs + Identity ของตัวเอง)
 
 ---
@@ -170,12 +170,48 @@ SECURITY EXIT GATE
 | 66 | Re-Verify Loop | หลังแก้ architecture วนตรวจใหม่ทั้งระบบ |
 | 67 | Security Exit Gate | 9 เงื่อนไข — ออกโหมดได้เมื่อผ่านหมด |
 
-## 5. Signature Features (3 ตัว)
+### L6 — Meta-Security Intelligence (ตรวจแม้แต่กระบวนการรักษาความปลอดภัยของตัวเอง) — 20 ระบบ
+
+| # | ระบบ | หน้าที่ |
+|---|---|---|
+| 68 | Epistemic Risk Engine | แยก "รู้/คาดการณ์/ไม่มีหลักฐาน/ขัดแย้ง" ชัดเจน — ลด hallucination ด้าน security |
+| 69 | Trust Decay System | evidence/assumption เก่า confidence ลดตามเวลา; architecture เปลี่ยน → ต้องพิสูจน์ใหม่ |
+| 70 | Formal Invariant Compiler | แปลงกฎภาษาคน ("Only project owners may delete projects") → invariant ที่ตรวจ architecture/code/tests ได้ |
+| 71 | Architecture Model Checker | สร้าง state model แล้วตรวจว่ามี state/path ไหนละเมิด invariant |
+| 72 | Constraint Solver | Security/Performance/Cost/UX/Availability ขัดกัน → หา architecture ที่ผ่าน constraint มากสุด |
+| 73 | Security Control Attack Surface | ตรวจตัวระบบป้องกันเอง (auth service, policy engine, secret manager) — security control ก็เป็น SPOF ได้ |
+| 74 | Defense Independence Analyzer | defense หลายชั้น "อิสระจริงไหม" หรือพึ่ง root cause เดียวกันหมด |
+| 75 | Risk Concentration Engine | หา node ที่รวม privilege/data/trust มากเกินไป แม้ยังไม่มี vulnerability |
+| 76 | Minimum-Trust Architecture Generator | เสนอ architecture ทางเลือกที่ลดจำนวน trust assumptions ให้น้อยสุด |
+| 77 | Secure-by-Construction Planner | กำหนด constraint ก่อน implementation — อะไร "สร้างไม่ได้ตั้งแต่แรก" |
+| 78 | Security Semantic Compiler | Security Architecture → machine-checkable rules สำหรับ CI/policy/tests/LoopFocus gates |
+| 79 | Architecture Counterexample Generator | ถ้าบอกว่า "ปลอดภัย" ต้องพยายามสร้าง counterexample มาหักล้างตัวเองก่อน PASS |
+| 80 | Proof Coverage Score | architecture ส่วนไหนพิสูจน์แล้วกี่ % ส่วนไหนยังอาศัย assumption |
+| 81 | Evidence Provenance Graph | finding ทุกอันย้อนได้ว่า evidence มาจาก file/config/runtime/test ไหน + ยัง valid อยู่ไหม |
+| 82 | Decision Reversibility Analyzer | security decision ไหน rollback ได้ง่าย ไหนคือ one-way commitment |
+| 83 | Resilience Envelope | คำนวณว่าระบบรักษา invariant ได้ภายใต้ failure/compromise ระดับใด |
+| 84 | Architecture Canary System | วาง invariant/check จุดสำคัญเหมือน canary — เบี่ยงจาก security model → จับได้เร็ว |
+| 85 | Shadow Security Evaluation | architecture ใหม่ประเมินคู่ของเดิมก่อนเปลี่ยนจริง — posture ดีขึ้นหรือถอยลง |
+| 86 | Adaptive Gate Intelligence | gate ไม่ใช้ threshold ตายตัว — ดู asset criticality + evidence + blast radius + confidence + change context |
+| 87 | Security Learning Loop | incident/false positive/false negative/rejected finding → ปรับ reasoning policy ของ SecurityArch |
+
+### L7 — Formal + Self-Challenging Security Intelligence (ทำตัวเป็น Security Architect อิสระ) — 6 ระบบ
+
+| # | ระบบ | หน้าที่ |
+|---|---|---|
+| 88 | Security Architecture Synthesizer | สร้างตัวเลือกใหม่เอง: Architecture A/B/C + คะแนน Security/Complexity/Cost + อธิบายว่าทำไมได้คะแนนนั้น |
+| 89 | Architectural Counterfactual Search | ลองโลกทางเลือก: Redis compromised? Auth unavailable? internal service hostile? admin credential leak? tenant isolation fails? → invariant ไหนอยู่/พัง |
+| 90 | Security Constitution ⭐ | รัฐธรรมนูญโปรเจกต์ (CONST-001..005) — SecurityArch ไม่มีสิทธิ์ override; architecture ใหม่ละเมิด → BLOCK |
+| 91 | Agent Capability Security Graph ⭐ | capability ของ Agent (fs.read/write, git, db.read/write, deployment, secrets, email, APIs) + Transitive Capability Reasoning: Agent A → Tool B → Service C → Credential D |
+| 92 | Recursive Security Science Loop ⭐ | Observe→Model→Hypothesize→Challenge→Evidence→Falsify→Repair→Challenge again→Converge — พยายามพิสูจน์ว่าตัวเอง**ผิด** ไม่ใช่ถูก |
+| 93 | L7 Pipeline | Intent → Business Requirements → Candidates A/B/C → World Model → Formal Constraints → Threat/Trust/Identity/Data Analysis → Counterexamples → Adversarial Review → Optimization → Proof/Evidence → Independent Judge → Approved Architecture |
+
+## 5. Signature Features (3 ตัว + 6 ตัวห้ามตัด ⭐)
 
 ### 5.1 Architecture Immune System
 ไม่ใช่ scan เป็นครั้งๆ — baseline "architecture ปกติ" + change arrives → Semantic Security Diff → new trust/privilege/exposure? → response (เหมือนภูมิคุ้มกันของระบบ)
 
-### 5.2 Security World Model
+### 5.2 Security World Model ⭐
 representation ภายใน: Users / Agents / Services / APIs / Data / Secrets / Roles / Networks / Dependencies / Devices / Trust / Privileges / Policies / Invariants — reasoning บนโลกทั้งใบของระบบ ไม่ใช่อ่านทีละไฟล์ (หัวใจของความ "เก่งจริง")
 
 ### 5.3 Recursive Architecture Challenge (โหดสุด)
@@ -184,15 +220,31 @@ Design → Secure it → Attack assumptions → Repair
 → Attack repaired design → Search secondary effects
 → Repair again → Independent proof
 ```
-วนจนกว่า:
-- Critical Paths = 0
-- Unverified High Risks = 0
-- Security Invariants = PASS
-- Contradictions = resolved
-- Evidence Confidence >= threshold
-- Independent Judge = PASS
+วนจนกว่า: Critical Paths = 0, Unverified High Risks = 0, Security Invariants = PASS, Contradictions = resolved, Evidence Confidence >= threshold, Independent Judge = PASS → แล้วค่อยออกจาก SecurityArch Mode (LoopFocus คือตัว loop ให้)
 
-→ แล้วค่อยออกจาก SecurityArch Mode (LoopFocus คือตัว loop ให้)
+### 5.4 หกตัวห้ามตัด (จาก L6+L7)
+| ⭐ | ระบบ | ทำไมถึงห้ามตัด |
+|---|---|---|
+| 1 | Security Constitution | ขอบเขตที่ SecurityArch เองก็ห้ามข้าม — ป้องกัน AI เปลี่ยนกฎเอง |
+| 2 | World Model | ฐานของทุก reasoning — ไม่มี = กลับเป็นอ่านทีละไฟล์ |
+| 3 | Formal Invariants | เปลี่ยนกฎภาษาคนเป็นสิ่งที่ตรวจด้วยเครื่องได้ |
+| 4 | Counterexample Engine | หักล้างตัวเองก่อน PASS — กัน "บอกว่าปลอดภัยเพราะอยากจบ" |
+| 5 | Transitive Capability Graph | โลก agentic — capability ส่งต่อข้าม Agent→Tool→Service→Credential |
+| 6 | Recursive Falsification Loop | บุคลิกทาง reasoning: พยายามพิสูจน์ว่าตัวเองผิด ไม่ใช่ถูก |
+
+### 5.5 Architecture สุดท้ายของ SecurityArch
+
+```
+SECURITYARCH
+│
+├── L1 World Mapping
+├── L2 Threat & Risk Intelligence
+├── L3 Adversarial Reasoning
+├── L4 Evidence & Verification
+├── L5 Autonomous Security Architecture
+├── L6 Meta-Security Intelligence
+└── L7 Formal + Self-Challenging Security Intelligence
+```
 
 ## 6. Rules ที่ SecurityArch ยึดเหนือ LoopFocus มาตรฐาน
 
@@ -201,14 +253,19 @@ Design → Secure it → Attack assumptions → Repair
 3. **Patch ห้ามใช้กับ design bug** — Fix Architecture Planner บังคับ
 4. **ห้ามเคลม secure** — บอกได้แค่วิธีตรวจ + เวอร์ชัน
 5. **ออกโหมดผ่าน Exit Gate เท่านั้น** — 9 เงื่อนไขครบ
+6. **SecurityArch ไม่มีสิทธิ์ override Constitution** — ละเมิด = BLOCK
 
 ## 7. แผนการทดสอบ (TDD)
 
 - RED: scenario "audit ระบบจริงจัง" แบบไม่มีสกิล — ดูว่า agent ธรรมดาพลาดอะไร (คาดว่า: ไม่ทำ threat model, ไม่เจอ multi-hop, ไม่ตรวจ config, ไม่แยก judge)
-- GREEN: ระบบ 67 ตัวทำงาน — scenario เดียวกันต้องเจอ multi-hop chain + blast radius + evidence ledger ครบ + recursive challenge วนจนเงื่อนไขผ่าน
+- GREEN: ระบบ 93 ตัวทำงาน — scenario เดียวกันต้องเจอ multi-hop chain + blast radius + evidence ledger ครบ + recursive challenge วนจนเงื่อนไขผ่าน + constitution ไม่ถูก override
 - Machine tests: security-exit.sh, risk-score.js (ใหม่), sast/fuzz/mutation suites
 - REFACTOR: หา rationalization → ปิด loophole
 
-## 8. สิ่งที่ยังจะเพิ่ม (รอ input เพิ่มจากเจ้าของโปรเจกต์)
+## 8. ขอบเขต (กันยัดทุกอย่างเข้าตัวที่ 3)
 
-- (เปิดรับ — จะเติมในสเปค v3)
+SecurityArch จบที่ 7 ชั้นนี้ — MainSkill #4, #5, #6 มีหน้าที่เฉพาะของมันต่อ (DeepVerify และอื่นๆ ตามเจ้าของโปรเจกต์กำหนด) ไม่ยัดเพิ่มเข้า SecurityArch
+
+## 9. สิ่งที่ยังจะเพิ่ม (รอ input เพิ่มจากเจ้าของโปรเจกต์)
+
+- (เปิดรับ — จะเติมในสเปค v4)
