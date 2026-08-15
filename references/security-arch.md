@@ -2,12 +2,24 @@
 
 Trigger words: security, audit, scan, vulnerab, CVE, secure, pentest, ช่องโหว่. Announced on entry. Profile: DEEP, always — SecurityArch does not run light.
 
+## The 21-system core (references/security-arch/)
+
+| Phase | Systems |
+|---|---|
+| **Map** | architecture-mapper · trust-boundary-mapper · attack-surface-mapper · data-flow-security · privilege-graph |
+| **Model** | threat-model-engine · security-invariant-engine |
+| **Gate** | boundary-gate · auth-authz-gate · secrets-gate · input-output-gate · dependency-gate · network-exposure-gate · storage-encryption-gate · failure-safe-gate |
+| **Decide** | security-decision-log · risk-scoring · exploitability-judge · fix-architecture-planner |
+| **Loop & Exit** | re-verify-loop · security-exit-gate |
+
+Each system is a deep reference file with What/Why/When/Protocol/Evidence gates/Anti-patterns/Example. The mode runs them in order: Map → Model → Gate → Decide → Loop → Exit. The Security Exit Gate is the only door out — nine conditions, all demonstrably true.
+
 ## Mode contract
 
 - May: inspect everything, run every audit tool, write findings, build threat models, run adversarial passes against the code's defenses.
 - Must not: apply fixes without the user's selection (Fix Policy); report unverified suspicions as findings; declare anything "secure" — only "checked, with these tools, on this version".
 - Gates that produce evidence: entry, context, assumption (exploitability claims), coverage, mutation, sast, artifact, completion.
-- Closes when: all 7 checklist categories walked + Layer-2 machine scans run (sast / fuzz / audit) + threat model drawn + every finding carries evidence + the user has been asked about fixes + ledger and genome recorded.
+- Closes when: the Security Exit Gate passes — mappers complete, 7 categories walked, machine scans run, every finding dispositioned, threat model + invariants recorded, re-verify clean, decision log present, user asked, completion gates pass.
 
 ## The 7-Category Coverage Checklist (walk ALL, even expecting nothing)
 

@@ -1,6 +1,6 @@
 # LOOPFOCUS — All-In-One Reference
 
-> Built: 2026-08-15T20:30Z | Source: github.com/Hamter-SPX/LoopFocus | Version: 0.7.0
+> Built: 2026-08-15T20:37Z | Source: github.com/Hamter-SPX/LoopFocus | Version: 0.7.0
 > This file is COMPLETE and SELF-CONTAINED. A chat AI with no file access can follow everything in it.
 
 ---
@@ -649,12 +649,24 @@ The predictive pass runs BEFORE the first code edit. It feeds: the DoD graph (pr
 
 Trigger words: security, audit, scan, vulnerab, CVE, secure, pentest, ช่องโหว่. Announced on entry. Profile: DEEP, always — SecurityArch does not run light.
 
+## The 21-system core (references/security-arch/)
+
+| Phase | Systems |
+|---|---|
+| **Map** | architecture-mapper · trust-boundary-mapper · attack-surface-mapper · data-flow-security · privilege-graph |
+| **Model** | threat-model-engine · security-invariant-engine |
+| **Gate** | boundary-gate · auth-authz-gate · secrets-gate · input-output-gate · dependency-gate · network-exposure-gate · storage-encryption-gate · failure-safe-gate |
+| **Decide** | security-decision-log · risk-scoring · exploitability-judge · fix-architecture-planner |
+| **Loop & Exit** | re-verify-loop · security-exit-gate |
+
+Each system is a deep reference file with What/Why/When/Protocol/Evidence gates/Anti-patterns/Example. The mode runs them in order: Map → Model → Gate → Decide → Loop → Exit. The Security Exit Gate is the only door out — nine conditions, all demonstrably true.
+
 ## Mode contract
 
 - May: inspect everything, run every audit tool, write findings, build threat models, run adversarial passes against the code's defenses.
 - Must not: apply fixes without the user's selection (Fix Policy); report unverified suspicions as findings; declare anything "secure" — only "checked, with these tools, on this version".
 - Gates that produce evidence: entry, context, assumption (exploitability claims), coverage, mutation, sast, artifact, completion.
-- Closes when: all 7 checklist categories walked + Layer-2 machine scans run (sast / fuzz / audit) + threat model drawn + every finding carries evidence + the user has been asked about fixes + ledger and genome recorded.
+- Closes when: the Security Exit Gate passes — mappers complete, 7 categories walked, machine scans run, every finding dispositioned, threat model + invariants recorded, re-verify clean, decision log present, user asked, completion gates pass.
 
 ## The 7-Category Coverage Checklist (walk ALL, even expecting nothing)
 
@@ -898,6 +910,866 @@ Small work does not fire full CI every loop. Near completion, the radius expands
 - Sandboxing after the dangerous change is already in the workspace
 - Collecting artifacts nobody can find (name them with attempt numbers)
 - Treating a passing local gate as license to skip the CI gate on the final change
+
+## Architecture Mapper
+# Architecture Mapper
+
+## What
+
+The first pass of SecurityArch: a complete map of what the system actually IS — components, services, APIs, databases, auth mechanisms, network topology, and dependencies. Built from code and config, never from READMEs or memory.
+
+## Why
+
+Threat modeling on a wrong map is fanfiction with risk ratings. The mapper forces the map to match reality before any analysis builds on it. Every later system (trust boundaries, attack surface, data flow) reads from this map — a wrong box here poisons every downstream verdict.
+
+## When
+
+First step of SecurityArch, before any gate runs.
+
+## Protocol
+
+1. Enumerate components: services, modules, workers, cron jobs — from code structure and run configs.
+2. Map the APIs: routes, handlers, what they expose (paths, methods, inputs).
+3. Map data stores: databases, caches, queues, files — who reads/writes each.
+4. Map auth: where authentication happens, what it issues, what trusts it.
+5. Map network: ports, protocols, ingress/egress, inter-service links.
+6. Map dependencies: libraries, runtimes, and their versions (the supply chain surface).
+7. Draw it — `loopfocus canvas --modules ... --edges ...` — with every edge labeled by what travels on it.
+8. Verify every box against code you have actually read. Unread boxes are marked UNKNOWN and enter the next exploration round.
+
+## Evidence gates
+
+- every component has a file:line anchor
+- unread areas are labeled UNKNOWN, not guessed
+- the canvas exists before any threat verdict
+
+## Anti-patterns
+
+- Mapping from the README (docs drift — the code is the truth)
+- Omitting the "boring" pieces (cron jobs, webhooks, file uploads are where attackers land)
+- A map with boxes and no labeled edges (that's a list of names, not an architecture)
+
+## Example
+
+Mapping a checkout app: components (web app, API, worker, DB, cache), APIs (POST /checkout, GET /api/cart), stores (users table, session cache), auth (token in header, checked in middleware), network (TLS at proxy, DB on private network), deps (express 4.16 — the version that later became F6 High). The map made the dependency risk visible before the audit even started.
+
+## Attack Surface Mapper
+# Attack Surface Mapper
+
+## What
+
+Enumerates every way INTO the system: entry points, exposed APIs, file inputs, IPC channels, sockets, webhooks, CLI flags, environment variables, anything that accepts external influence.
+
+## Why
+
+You can only protect the surface you can name. The unnamed surface — the debug endpoint, the webhook, the file upload — is where attackers find the door nobody watches. Baseline audits repeatedly missed unauthenticated /debug endpoints until the mapper forced enumeration.
+
+## When
+
+After the Trust Boundary Mapper. The attack surface is the untrusted edge of the boundary map.
+
+## The inventory (walk ALL)
+
+| Surface class | Where to look |
+|---|---|
+| HTTP routes/endpoints | route tables, framework registration, any unauthenticated route |
+| File inputs | uploads, imports, config files, attachments, archives |
+| IPC / sockets | unix sockets, local ports, shared memory, message queues |
+| Webhooks / callbacks | external posts INTO the system, signed or not |
+| CLI / admin commands | flags, subcommands, environment variables |
+| Third-party inputs | OAuth callbacks, payment callbacks, email parsing |
+
+## Protocol
+
+1. Enumerate per class — a class with zero findings is recorded as "none", not skipped.
+2. For each entry point: who can reach it (auth? network? local?), what it accepts, what it does with the input.
+3. Rank by exposure: unauthenticated + remote + high-privilege effect = top of the queue.
+4. Feed the ranked list into the gates — each entry point is a candidate finding or a verified control.
+
+## Evidence gates
+
+- per-class coverage recorded (including the "none" entries)
+- every entry point has reachability + input shape recorded
+- unauthenticated remote entries are ranked and traced first
+
+## Anti-patterns
+
+- Enumerating only the main API routes (debug endpoints, static files, and webhooks count)
+- Skipping local-only surfaces (local privilege escalation is still escalation)
+- Ranking by code size instead of by exposure
+
+## Example
+
+The /debug endpoint (unauth, dumps process.env + DB config) was invisible in the route table's "main" section. The mapper's reachability pass caught it as unauthenticated + remote + high-privilege — F5 High — before any attacker did.
+
+## Auth Authz Gate
+# Auth/AuthZ Gate
+
+## What
+
+Verifies that authentication actually authenticates and authorization actually authorizes — identity checks and permission checks are examined separately, at every place they matter.
+
+## Why
+
+Auth and AuthZ failures are the highest-leverage findings in most systems, and they hide in different places: auth fails at the door (weak comparison, hardcoded secrets), AuthZ fails inside the house (IDOR, missing ownership checks). Checking them as one "access control" category lets one hide the other.
+
+## When
+
+Every route/resource in the attack surface inventory, plus service-to-service calls.
+
+## Protocol
+
+1. **Authentication side**: how is identity established? Check the mechanism (not the label): hardcoded secrets, loose comparison (`==` type juggling), missing signature verification, token lifetime, revocation.
+2. **Authorization side**: after identity, is the permission actually checked at the resource? Ownership scoping, role checks on the object being accessed, no missing AuthZ on bulk/legacy routes.
+3. Verify each by attempt where feasible (array coercion on `==`, forged token structure, another user's ID in the request).
+4. Record per-endpoint verdicts: auth ok/weak, authz ok/weak, evidence.
+
+## Evidence gates
+
+- auth and authz verdicts recorded separately per endpoint
+- weak verdicts carry a reproduction attempt
+- service-to-service calls are covered, not just user routes
+
+## Anti-patterns
+
+- "It uses JWT" as an auth verdict (how is it verified? what trusts it?)
+- Checking auth and skipping authz ("only admins can call this" — verified how?)
+- Missing the type-juggling class (loose equality is a bug, not a style choice)
+
+## Example
+
+auth.js: `if (token == "admin123")` — auth gate findings: hardcoded credential (F3 High) + loose equality array bypass (F7 Medium, reproduced with `?token[]=admin123`). The authz side found the login handler handing the admin token to every user (F9). Two separate gates, four separate findings — one gate would have stopped at "the token check is weak".
+
+## Boundary Gate
+# Boundary Gate
+
+## What
+
+Checks every crossing between trust zones: at each boundary edge, is the right validation/serialization/authorization actually present — in code, verified, not assumed?
+
+## Why
+
+Boundaries are where untrusted influence becomes trusted action. A single unvalidated crossing invalidates the entire trusted zone behind it. The gate audits crossings one by one, because one missed edge is one attacker path.
+
+## When
+
+After the Trust Boundary Mapper, for every crossing edge it produced — and re-checked after any change that touches an edge.
+
+## Protocol
+
+1. For each crossing: name the data direction and what must happen at the edge (validate? deserialize? authenticate? authorize? rate-limit?).
+2. Verify in code: does the control exist at THIS edge (not "somewhere in the framework")? A control on a sibling route is not a control on this one.
+3. Classify: control present + verified → pass; present but unverified → UNKNOWN (test it); absent → finding (severity by what crosses).
+4. Record per-edge verdicts in the ledger — the boundary table is part of the audit deliverable.
+
+## Evidence gates
+
+- per-edge verdicts recorded for every mapped crossing
+- "present" means verified in code, with a file:line
+- absent controls become findings, not notes
+
+## Anti-patterns
+
+- Assuming the framework "handles it" without locating the handler
+- Checking only the user-facing boundaries (service-to-service edges are crossings too)
+- One verified edge standing in for its siblings
+
+## Example
+
+Cart API crossing: semi-trusted (authenticated user) → trusted (DB). Required at the edge: ownership scoping. Code check: none — the query returned rows by name with no owner filter. Absent control at a boundary crossing = F11. The gate converted "the API seems fine" into a per-edge contract.
+
+## Data Flow Security
+# Data Flow Security
+
+## What
+
+Traces sensitive data along its full journey — source → processing → storage → output — and checks the controls at EVERY hop, not just at the endpoints.
+
+## Why
+
+Data is most exposed in transit and in transformation, exactly where per-hop audits stop. A credential encrypted at rest but logged in a debug line mid-processing is compromised; the flow trace catches what endpoint checks miss.
+
+## When
+
+After the Attack Surface Mapper. Pick the sensitive data classes (credentials, tokens, PII, payment data) and trace each.
+
+## Protocol
+
+1. Classify the sensitive data: what types exist (credentials, PII, financial, session tokens).
+2. For each type, trace the full path: where it enters, where it is processed (every handler/function that touches it), where it is stored, where it is emitted (logs, responses, files, caches, third parties).
+3. At each hop check: is it validated? encrypted? masked in logs? present in error messages? cached unnecessarily? sent to a third party?
+4. Cross-check outputs: grep logs/code for the data's identifiers — a data class that appears in an output it should not touch is a finding with a hop number.
+5. Record the flow as a canvas path — the trace IS the deliverable, not just its findings.
+
+## Evidence gates
+
+- one trace per sensitive data class
+- every hop has a control verdict (ok / weak / missing)
+- findings cite the hop, not just "data exposure"
+
+## Anti-patterns
+
+- Checking storage encryption and declaring the flow secure (transit/processing hops remain)
+- Tracing only credentials (PII and session tokens fund their own breaches)
+- A trace with endpoints and no middle (the middle is where data actually leaks)
+
+## Example
+
+Reset-password feature prediction: SMTP credentials added to config → flow trace follows them: entered via env → loaded into db.config → **emitted by the unauth /debug dump** → the hop-level finding (F5) was already a Known risk in the Predictive Analysis before the feature existed.
+
+## Dependency Gate
+# Dependency / Supply-chain Gate
+
+## What
+
+Audits the whole dependency surface: lockfile integrity, known advisories, unpinned versions, lifecycle scripts, remote sources, and the maintainer risk of every package the build pulls.
+
+## Why
+
+Most real-world breaches in modern apps arrive through dependencies, and most audits check only `npm audit`'s severity list. The gate goes further: a clean advisory list with an unpinned, scripted dependency from an unknown source is still an open supply chain.
+
+## When
+
+Machine pass at every audit (the project's audit tool), deep pass on the dependency tree when advisories or unusual sources appear.
+
+## Protocol
+
+1. **Advisory scan**: run the stack's audit tool; read the REACHABLE advisories (a CVE in a tree the app never imports matters less — and more, if the tree can be reached via a gadget).
+2. **Lockfile integrity**: is the lockfile committed? Does it match the manifest? (`npm ci` vs `npm install` drift.)
+3. **Pinning**: are versions exact or range-pinned? Ranges drift silently — the "known good" build from last month is not reproducible.
+4. **Lifecycle scripts**: any install/postinstall scripts? What do they run? (The single most dangerous supply-chain surface.)
+5. **Sources**: any dependency from an unusual registry/git URL? Maintainer history for critical deps?
+6. Every departure from the safe pattern is a finding — severity by reachability.
+
+## Evidence gates
+
+- audit tool output attached as evidence
+- lockfile and pinning verdicts recorded
+- lifecycle scripts and unusual sources checked, not assumed
+
+## Anti-patterns
+
+- "npm audit says 0" as the whole verdict
+- Upgrading everything as one giant diff (one dep, one verification — Fix Policy applies)
+- Ignoring a transitive CVE because "we don't import it directly" without checking the reachable path
+
+## Example
+
+express 4.16.0 pulled 7 advisories, the worst reachable through `req.query` parsing (qs prototype pollution) on an endpoint that parses user input — High, not Low, because the gate checked reachability instead of counting the advisory's generic score. The fix (4.22.x, non-major) was verified as its own change, not bundled with the SQL fixes.
+
+## Exploitability Judge
+# Exploitability Judge
+
+## What
+
+The separator between "wrong in theory" and "attackable in practice": every candidate finding is put to an actual attempt before it earns the Known badge and its severity.
+
+## Why
+
+Security reports drown in theoretical findings: patterns that violate rules but lead nowhere, because the path is blocked by another control, unreachable in practice, or plain unexploitable. The judge converts the theoretical list into the practical list — the one the user actually needs to act on.
+
+## When
+
+Every High/Critical candidate before it enters the report, and every Medium the user is asked to spend budget on.
+
+## Protocol
+
+1. For the candidate: name the preconditions (what the attacker needs: access level, specific input, timing).
+2. Attempt the exploit along the path: the payload, the coercion, the traversal — a real reproduction, not a mental run.
+3. Verdicts:
+   - **Exploitable** — the attempt succeeded → Known, severity by what was reached.
+   - **Blocked** — the attempt failed at a REAL control → downgrade or close, record the blocking control (a defense that works is a finding's opposite, worth recording).
+   - **Unverifiable here** — the attempt needs an environment we don't have → stays Unknown, reports as a candidate with the missing environment named.
+4. Each verdict is a ledger entry: the attempt, the result, the confidence change.
+
+## Evidence gates
+
+- attempts recorded with payloads and results
+- Known badges tied to a successful attempt
+- unverifiable candidates named as such (never silently upgraded)
+
+## Anti-patterns
+
+- Judging "exploitable" from the theory without running the attempt
+- One failed attempt closing a finding class (the attempt may have failed for a confounder — record what was tried)
+- Reporting theoreticals as confirmed because "it's obviously wrong" (obvious is what the judge exists to test)
+
+## Example
+
+SQLi candidate: theory said Critical. Attempt: `?name=' OR '1'='1` returned the full users table → Known Critical, reproduction attached. The same judge on the "weak crypto" candidate found the md5 was hashing a non-secret cache key → Info, because the attempt showed nothing valuable behind it. One audit, two candidates, opposite verdicts — that's the judge working.
+
+## Failure Safe Gate
+# Failure-Safe Gate
+
+## What
+
+Verifies that failure modes close instead of open: when a check fails, a service dies, or an exception fires, the system must DENY — never grant access, never expose data, never bypass a control.
+
+## Why
+
+Fail-open is the quiet killer: the auth service is down so the middleware skips the check; the validation throws so the input passes through raw; the circuit breaker trips so the request is processed anyway. Every failure path is an attacker lever — cause the failure, inherit the access.
+
+## When
+
+Every control that can fail (auth checks, validation, rate limits, upstream calls), walked from the failure branch of the code.
+
+## Protocol
+
+1. For each control: read the FAILURE branch, not the happy path. What happens when the dependency it guards throws, times out, or returns garbage?
+2. Classify: fail-closed (deny) / fail-open (allow) / fail-confused (unpredictable state).
+3. Verify the interesting ones by attempt: kill the upstream, throw in the middleware, corrupt the config — observe what the system does.
+4. Fail-open or fail-confused on a security-relevant control = finding, severity by what the failure grants.
+
+## Evidence gates
+
+- failure branches read for every security-relevant control
+- fail-open paths verified by attempt where feasible
+- per-control verdicts recorded
+
+## Anti-patterns
+
+- Reviewing only the happy path (the happy path is not where the bug lives)
+- "It returns 500" assumed without checking what the 500 path did BEFORE returning
+- Skipping the verification attempt on the grounds that "we can't easily break it in a review" (simulate the failure, it's the point)
+
+## Example
+
+Cart handler: `loadCart()` returned null on empty cart → `cart.items` threw → unhandled rejection → the submit silently did nothing. Not a security control — but the SAME pattern on the auth middleware (exception in the token check → next() skipped the check) would be fail-open Critical. The gate's walk flagged the pattern class, and the invariant engine added "auth failures must reject" as a checkable rule.
+
+## Fix Architecture Planner
+# Fix Architecture Planner
+
+## What
+
+When the findings point at a DESIGN-level problem, the planner produces a design-level fix — with a canvas, a radius, and a migration path — instead of letting the agent mop up code patches that leave the design broken.
+
+## Why
+
+The most expensive security mistake is patch-level response to design-level findings: parameterize THIS query, fix THIS comparison — and the pattern survives in the other 14 places, because the design (the shared helper, the auth model) still manufactures the bug. Design findings need design fixes; code patches on design bugs are security theater.
+
+## When
+
+Whenever the Threat Model Engine or two+ findings share one structural cause. The trigger: "this fix will not hold" — same class, multiple instances.
+
+## Protocol
+
+1. Classify the finding: instance-level (this line) or design-level (this pattern's shared mechanism)? Two+ instances of one class = design-level by definition.
+2. For design-level: canvas the shared mechanism and its instances (the fix surface, not the bug surface).
+3. Design the fix at the mechanism: the parameterized query HELPER replacing the concat HELPER; the ownership check in the DATA LAYER instead of per-route. One design change kills the class.
+4. Compute the radius (Change Radius Control applies) and the migration path: what moves when the mechanism changes, what must be re-verified (Re-Verify Loop feeds here).
+5. The plan is a deliverable (canvas + radius + migration + DoD chain) — user-approved before implementation, like any structural change.
+
+## Evidence gates
+
+- design-level classification recorded with the shared mechanism named
+- fix plan includes radius + migration + verification path
+- instance-level fixes on design bugs are rejected with the reason
+
+## Anti-patterns
+
+- Patching two instances and calling the class fixed
+- Designing a fix without the canvas (an unseen mechanism cannot be fixed deliberately)
+- Skipping the user approval because "it's a security fix, obviously needed" — the user owns the migration risk
+
+## Example
+
+The SQL-concat class: three routes shared the concat pattern. Patch-level response: fix the three queries. Planned response: the shared query helper becomes parameterized-by-construction (concat removed from the API) + ownership scoping at the data layer. One design change, five findings (F1, F2 + the three uninstantiated instances) killed at their manufacturing point.
+
+## Input Output Gate
+# Input/Output Gate
+
+## What
+
+Checks every input the system accepts and every output it produces: inputs are validated at the boundary (type, length, charset, structure), outputs are encoded and bounded (no injection, no data leakage, no unbounded responses).
+
+## Why
+
+Injection lives at the input; data exposure lives at the output. Both are per-endpoint properties — a system with nine safe endpoints and one unsafe one is an unsafe system. The gate walks endpoints, not averages.
+
+## When
+
+Every entry point in the Attack Surface inventory, inputs and outputs separately.
+
+## Protocol
+
+1. **Input side**: for each entry point — what is accepted (type, size, structure), where is it validated (at the boundary, not deep inside), and where does validated data become trusted (the dangerous transition: SQL, shell, HTML, file paths, deserialization).
+2. **Output side**: what is emitted — encoded for its context (HTML-encoded for browser, escaped for shell/logs), bounded in size, and free of data the caller should not receive (internal errors, stack traces, other users' records).
+3. Verify the dangerous transitions by attempt: quote payloads for SQL, HTML tags for reflection, `../` for paths.
+4. Per-endpoint verdicts recorded; a fail on either side is a finding.
+
+## Evidence gates
+
+- per-endpoint input and output verdicts
+- dangerous transitions verified by payload attempts
+- internal data (errors, traces) checked for in responses
+
+## Anti-patterns
+
+- Validating input "somewhere" in the flow instead of at the boundary (late validation still runs on attacker-shaped data)
+- Output encoding skipped because "the data is internal" (internal data becomes output somewhere)
+- Checking only string inputs (files, headers, and objects are inputs too)
+
+## Example
+
+/api/user?name=: input side — no validation at the boundary, string reaches SQL concat (F1 Critical, reproduced with `' OR '1'='1`). Output side — /debug returned process.env + db.config unauth (F5). One endpoint, both gates failing, two findings with different remediations — the separation made each fix precise.
+
+## Network Exposure Gate
+# Network Exposure Gate
+
+## What
+
+Audits what the network actually exposes: open ports, exposed services, ingress rules, inter-service traffic, and the encryption state of every hop.
+
+## Why
+
+The network layer is where "internal" assumptions die: the DB bound to 0.0.0.0, the debug port open to the VPC, the management API without TLS. Application-level fixes cannot compensate for a network-level door — and vice versa, so the gate exists as its own pass.
+
+## When
+
+After the Architecture Mapper (it supplies the topology); machine-assisted by configs (docker-compose ports, k8s services, proxy configs, firewall rules).
+
+## Protocol
+
+1. Enumerate exposed surfaces: published ports, public endpoints, load balancer targets, service-to-service listeners.
+2. For each: who can reach it (internet / subnet / localhost), is the traffic encrypted in transit, and is authentication required at the listener?
+3. Check the "internal" claims: a service labeled internal that is actually reachable from another zone is a finding — verify with an actual connection attempt where possible.
+4. Check egress too: what the system calls out to (webhooks, package registries, telemetry) — supply-chain egress is network exposure in the other direction.
+5. Per-surface verdicts recorded with reachability evidence.
+
+## Evidence gates
+
+- per-surface reachability + encryption verdicts
+- "internal" claims verified by attempt or config evidence
+- egress destinations enumerated
+
+## Anti-patterns
+
+- Trusting the word "internal" in a config without checking who can reach it
+- Checking only ingress (egress exfiltrates too)
+- "TLS at the proxy" as the verdict without checking the proxy-to-backend hop
+
+## Example
+
+Topology said "DB on private network". Config check: the DB container published 5432 to the host bridge, reachable from the web container AND from the host — the "private" claim was a config-level assumption, and the gate turned it into a Medium finding with a one-line remediation (bind to the internal network only).
+
+## Privilege Graph
+# Privilege Graph
+
+## What
+
+A graph of who/what holds which rights — principals (users, roles, services, tokens) and the capabilities they can exercise — plus the escalation edges that connect a low right to a higher one.
+
+## Why
+
+Privilege bugs are graph bugs: an escalation is a path from a low node to a high node that the designers never drew. Enumerating rights as a graph makes the path visible, while a list of "roles" hides exactly the edges that matter.
+
+## When
+
+After the Architecture Mapper (it supplies the components) and the Data Flow (it supplies what the rights protect).
+
+## Protocol
+
+1. Enumerate principals: user roles, service accounts, internal services, anonymous.
+2. Enumerate capabilities: what each principal can read/write/invoke (routes, tables, files, admin actions).
+3. Draw the edges: principal → capability. Canvas it — graphs beat tables here.
+4. Hunt the escalation edges: anonymous → user (signup bypass), user → admin (IDOR on role field), service → other service (shared credentials), token → broader scope (missing audience check).
+5. For each escalation path found: attempt it (Exploitability Judge) — an escalation that reproduces is a finding with a path, not a suspicion.
+
+## Evidence gates
+
+- principals and capabilities enumerated with anchors
+- escalation paths recorded with their attempt results
+- the graph exists as a canvas (part of the threat model deliverable)
+
+## Anti-patterns
+
+- Listing roles without their capabilities (a role name is not a right)
+- Ignoring service-to-service edges (the attacker escalates through services too)
+- Treating "admin checks the role field" as a control without checking who can write the role field
+
+## Example
+
+Checkout app: every login issued the static admin token to ANY valid user (server.js:25) — the graph showed user → admin as a direct edge with no gate on it. The graph made F9 (business logic privilege escalation) structurally obvious instead of a lucky find.
+
+## Re Verify Loop
+# Re-Verify Loop
+
+## What
+
+After an architecture-level security fix, the entire audit re-runs against the CHANGED system: the mappers re-map, the gates re-check, the invariants re-verify. A design change invalidates the design's audit.
+
+## Why
+
+Security fixes move the architecture, and the old findings were written against the old architecture. A parameterized helper changes the data flow; a new auth model changes the privilege graph; a closed endpoint changes the attack surface. Verifying only "the fix works" leaves every other verdict stale — Evidence Freshness applies to security verdicts too.
+
+## When
+
+After every design-level fix (Fix Architecture Planner output), and as a full pass before the Security Exit Gate.
+
+## Protocol
+
+1. Re-run the mappers affected by the change (a query-helper change re-runs the data flow and attack surface; an auth-model change re-runs the privilege graph and trust boundaries).
+2. Re-check every gate whose surface the change touched — and the invariants, all of them (the engine re-verifies everything, not just the touched area, because design changes ripple).
+3. Compare new verdicts against the Security Decision Log: accepted risks may have changed shape; reopen-if conditions may have triggered.
+4. New findings enter the loop normally (score → judge → plan). The loop ends when a full pass produces no new findings AND the invariants hold.
+
+## Evidence gates
+
+- the re-verify pass is a recorded round (ledger entry: what changed, what re-ran, what changed verdict)
+- old verdicts explicitly re-validated or invalidated (stale verdicts are named, not inherited)
+- exit requires a clean full pass, not a spot check
+
+## Anti-patterns
+
+- Verifying the fix and declaring the audit done (the fix is one node of a graph)
+- Re-checking only "related" gates (design changes ripple — full pass)
+- Carrying old verdicts forward without re-reading the changed code
+
+## Example
+
+After the parameterized-helper fix: data flow re-trace showed the injection class closed at the source; attack surface re-map confirmed no new entry points; the invariants re-verified green; one new finding appeared (the helper's error path now returns raw SQL in errors — a new output-side leak born from the fix itself). The loop caught the fix's own child finding — exactly what a one-shot verification would have missed.
+
+## Risk Scoring
+# Risk Scoring
+
+## What
+
+Every finding gets a two-axis score: severity (Critical / High / Medium / Low / Info) from exploitability, and confidence (Known / Likely / Unknown) from verification depth. The pair, not the name, is the risk.
+
+## Why
+
+Two failure modes plague security reports: fear-scoring (everything is Critical, so nothing is) and confidence-less scoring (a guess and a reproduction wear the same badge). The two-axis score kills both: severity stays honest because confidence carries the doubt.
+
+## When
+
+Every finding, at report time — and the score is written next to the finding, never in a summary table alone.
+
+## The axes
+
+| Axis | Levels | Decides |
+|---|---|---|
+| **Severity** | Critical / High / Medium / Low / Info | exploitability: remote? unauth? what does success grant? |
+| **Confidence** | Known / Likely / Unknown | verification depth: reproduced? pattern match? speculation? |
+
+## Scoring rules
+
+1. Severity is decided by exploitability, not by the bug's name. A remote unauth SQLi is Critical; the same SQLi behind admin-only auth is High.
+2. Confidence is decided by verification: reproduced by attempt = Known; strong pattern + partial evidence = Likely; not yet verifiable = Unknown — and an Unknown never reports at full severity (it is a candidate, routed to the Exploitability Judge).
+3. The two axes multiply in the report order: Critical/Known first, Info/Unknown last.
+4. Scores can change mid-audit as verification deepens — the log records the change with the new evidence.
+
+## Evidence gates
+
+- every finding carries both axes
+- Known requires the reproduction or tool output that earned it
+- report ordering follows severity-then-confidence
+
+## Anti-patterns
+
+- Fear-scoring: Critical for "best practice" violations (Info/Low exist for hygiene)
+- A Known badge on a pattern match
+- Scores assigned before verification and never revisited
+
+## Example
+
+The `==` token comparison: first scored Medium/Likely (pattern: loose equality is dangerous). After the reproduction attempt (`?token[]=admin123` → granted) it became Medium/**Known** with the reproduction attached — same severity, materially different risk, and the report order changed accordingly.
+
+## Secrets Gate
+# Secrets Gate
+
+## What
+
+Finds and verifies the handling of secrets everywhere they can hide: source files, configs, environment, logs, build artifacts, git history, client bundles.
+
+## Why
+
+A secret in any of these locations is a credential, not a string. Secrets are the one finding class where a single miss = full compromise, and where the scan surface is genuinely broad: the code you wrote, the code you committed, and the artifacts you shipped.
+
+## When
+
+As a machine scan (sast rules + git history sweep) plus a manual pass on storage and transit (Data Flow Security already traces them).
+
+## Protocol
+
+1. **Machine scan**: `loopfocus sast` flags hardcoded-key patterns with file:line; sweep git history for committed secrets (`git log -p` pattern check).
+2. **Storage check**: where do secrets live at runtime — env, secrets manager, config file? Who can read them there?
+3. **Transit check**: do they pass through logs, error messages, debug endpoints, or client bundles? (Data Flow trace supplies this.)
+4. **Rotation check**: is there a rotation path? A secret with no rotation plan is a future breach with a fixed cost.
+5. Every hit is a finding with its location class — a secret in git history is a DIFFERENT finding from one in source (different remediation, different severity).
+
+## Evidence gates
+
+- machine scans run, output attached
+- runtime storage + transit verdicts recorded per secret class
+- git history sweep done (not just working tree)
+
+## Anti-patterns
+
+- Scanning only the working tree (history and artifacts keep their own secrets)
+- Treating `.env.example` as a secret leak (it is a template — check whether real values ever followed it)
+- Finding a secret and fixing only that instance (the class needs the flow trace)
+
+## Example
+
+db.js hardcoded the production DB password (F4 High) AND /debug dumped db.config unauth (F5 High) — the gate's storage+transit checks connected one credential to two findings, and the remediation (env + rotate + close /debug) covered the class, not the instance.
+
+## Security Decision Log
+# Security Decision Log
+
+## What
+
+The audit's own Decision Ledger: every security-relevant architecture decision recorded — what was accepted, what was rejected, and why — with the evidence that reopens each one.
+
+## Why
+
+Security audits produce dozens of judgment calls ("this risk is accepted for now", "this finding is out of scope"). Without a log, the calls evaporate and the next audit re-litigates them, or worse, ships on assumptions the previous round already refuted. The log is the audit's memory.
+
+## When
+
+Throughout the audit — every accept/reject/scope ruling is a ledger entry, not a chat line.
+
+## Format (ledger section)
+
+```text
+## Security Decisions
+- <date> <decision> | risk: <what was weighed> | verdict: accepted|rejected|deferred
+  | reason: <why> | reopen-if: <evidence that would change the verdict>
+```
+
+## Rules
+
+1. Accepted risks are explicit — "we accept X because Y" written down, with Y being a reason, not fatigue.
+2. Every rejection names the finding it rejected and why it lost.
+3. The `reopen-if` clause is mandatory: a verdict without a reopening condition is a belief, not a decision.
+4. The log ships in the handoff package and the completion report — later audits read it first.
+
+## Evidence gates
+
+- every accept/reject/scope ruling has an entry
+- accepted risks carry reasons, rejected findings carry reasons
+- reopen-if present on every verdict
+
+## Anti-patterns
+
+- Accepting risks verbally ("we'll fix that later") with no entry — later never reads the chat
+- "Accepted because the user said so" without recording WHAT the user accepted
+- A log with only rejections (acceptances are the riskiest entries and need the most justification)
+
+## Example
+
+Audit ruling: "2026-08-15: accepted — unauthenticated /api/health returns DB status string | risk: minor info leak (version string) | reason: monitoring dependency requires it; no credential exposure | reopen-if: the status string ever includes connection details". The next audit reads the reopen-if, checks the endpoint, and closes or reopens the verdict in one minute instead of re-auditing from scratch.
+
+## Security Exit Gate
+# Security Exit Gate
+
+## What
+
+The only door out of SecurityArch mode. LoopFocus exits the mode when — and only when — every condition is demonstrably true: mappers complete, gates run, findings dispositioned, decisions logged, re-verify clean, user asked.
+
+## Why
+
+A security audit's natural ending is "enough" — a feeling, usually when the findings list stops growing. The exit gate replaces the feeling with conditions, so the mode cannot be left with unchecked categories, unverified findings, or silent decisions — the three ways hollow audits end.
+
+## When
+
+Any attempt to close SecurityArch. Machine-checkable via `security-exit.sh`.
+
+## The conditions (ALL must hold)
+
+1. **Mappers complete** — architecture, trust boundaries, attack surface, data flow, privilege graph all recorded with anchors.
+2. **7 categories walked** — every coverage category recorded, including the "none" entries.
+3. **Machine scans run** — sast output attached (and Criticals dispositioned), fuzz/audit run or SKIP with reason.
+4. **Every finding dispositioned** — each finding is fixed-and-verified, accepted-with-log-entry, or deferred-with-log-entry. No orphan findings.
+5. **Threat model + invariants recorded** — the model exists; invariants re-verified green.
+6. **Re-verify loop clean** — the last full pass after the last fix produced no new findings.
+7. **Decision log present** — every accept/reject/scope ruling has an entry with reopen-if.
+8. **User asked** — the Fix Policy ask happened; the user's selections recorded.
+9. **Completion gates pass** — the standard LoopFocus gates (verify script etc.) still apply on top.
+
+## Machine check
+
+```bash
+loopfocus security-exit
+# {"verdict":"PASS"}  or  {"verdict":"FAIL","missing":["mappers","decision_log",...]}
+```
+
+A FAIL names the missing conditions. The mode stays open until they are true — leaving early is a discipline violation, not a shortcut.
+
+## Evidence gates
+
+- all nine conditions verifiable (each maps to a ledger section or tool output)
+- exit attempts recorded (a rejected exit is a finding about the audit itself)
+
+## Anti-patterns
+
+- Exiting because "the user is waiting" (schedule pressure does not close security conditions)
+- Checking conditions from memory instead of the artifacts
+- One clean exit gate run standing in for a clean re-verify (they are different conditions — both required)
+
+## Example
+
+First exit attempt: FAIL — missing: decision_log (two accepted risks unrecorded), re_verify (last fix not re-passed). The gate named exactly what was left. Twenty minutes later, both done, second attempt: PASS. The mode closed on evidence, not on fatigue.
+
+## Security Invariant Engine
+# Security Invariant Engine
+
+## What
+
+The security rules that "must never be violated" — unauthenticated users cannot reach private resources, credentials never appear in logs, tokens cannot be forged — written as checkable statements, verified every loop.
+
+## Why
+
+Security is the hardest area to regression-test because the invariants are usually implicit. The engine makes them explicit and mechanical: an invariant written once is checked every loop thereafter, exactly like LoopFocus's Invariant Guard but with security-specific teeth.
+
+## When
+
+At SecurityArch LOCK (write them), and at every loop after any edit (verify them).
+
+## Protocol
+
+1. Write the invariants as falsifiable statements:
+   - `unauthenticated request → no private resource is reachable`
+   - `credential values never appear in any log line`
+   - `a token generated by the system cannot be forged without the signing key`
+2. Give each an evidence command (a test, a grep, a runtime check). An invariant without a check is a wish.
+3. Wire them into the DoD chain for every fix: a fix that breaks an invariant has regressed even if its own test passes.
+4. Re-verify every invariant after every architecture-level change (Re-Verify Loop consumes them).
+
+## Evidence gates
+
+- invariants listed with checks at LOCK
+- invariant checks re-run after every edit (visible in gate outputs)
+- a broken invariant blocks completion, whatever else is green
+
+## Anti-patterns
+
+- Invariants so vague they cannot fail ("be secure")
+- Writing them after the audit as a summary (they exist to guide the audit)
+- Treating an invariant's one-time check as permanent (re-check every loop — Evidence Freshness)
+
+## Example
+
+Checkout app invariants: (1) no route reaches user data without auth middleware, (2) no credential string appears in any response/log, (3) cart contents are scoped to the session owner. The /debug endpoint violated (2) and (1) simultaneously — the invariant checks turned one accidental find into two documented contract violations with a remediation order.
+
+## Storage Encryption Gate
+# Storage / Encryption Gate
+
+## What
+
+Audits every data store and every encryption use: what is stored, where, encrypted or not — at rest, in transit, and in backups — and who holds the keys.
+
+## Why
+
+Encryption claims fail in specific, boring ways: encrypted at rest but the backup is plaintext; encrypted in transit but logged before encryption; AES-256 with the key in the same repo. The gate checks the whole storage chain, because a chain with one weak link stores plaintext in disguise.
+
+## When
+
+After the Data Flow Security trace (it identifies the storage hops) and the Architecture Mapper (it identifies the stores).
+
+## Protocol
+
+1. Enumerate stores: DBs, caches, files, backups, logs-as-storage, client-side storage (cookies/localStorage).
+2. Per store: what classes of data land there (from the data flow trace), is it encrypted at rest, and who can read the ciphertext AND the keys?
+3. Key management: where do keys live, who can rotate them, is there a separation between data location and key location (same repo/same host = no protection)?
+4. Backups and replicas: a store's encryption must extend to its copies — a plaintext backup is a plaintext breach waiting.
+5. Per-store verdicts recorded; unencrypted sensitive data is a finding with the store named.
+
+## Evidence gates
+
+- per-store encryption + key-location verdicts
+- backups/replicas covered, not just the primary store
+- key-management paths recorded (rotation is part of the verdict)
+
+## Anti-patterns
+
+- "Encrypted at rest" without naming the algorithm, the mode, and the key's location
+- Checking the primary DB and forgetting backups, caches, and logs
+- Treating client-side storage as safe because "only the user can read it" (any XSS reads it too)
+
+## Example
+
+Sessions in an in-memory Map (no encryption, no expiry) + user table with plaintext passwords compared in SQL. The gate's verdicts: session store — unencrypted but short-lived by design (weak: no expiry existed until fixed); password storage — plaintext comparison (F8 Medium, because the SQLi finding already guaranteed exfiltration; the gate graded the compounding, not the headline).
+
+## Threat Model Engine
+# Threat Model Engine
+
+## What
+
+The core differentiator of SecurityArch: analysis of threats AGAINST THE ARCHITECTURE — what an attacker would do, through which path, to reach what asset — instead of a flat scan of bug patterns.
+
+## Why
+
+Bug scans find instances; threat models find classes. The SQL injection scanner finds one concatenation; the threat model shows that EVERY route sharing the DB helper is the same class of threat, and that the real prize is the credential in db.config, not the users table. Fixes then target the design, not the sample.
+
+## When
+
+After the four mappers (Architecture, Trust Boundary, Attack Surface, Data Flow). The engine consumes their output.
+
+## Protocol
+
+1. Identify assets: what would an attacker want? (credentials, PII, funds, control).
+2. Enumerate threat actors: anonymous internet, authenticated user, malicious third-party, insider.
+3. Per actor: STRIDE-style walk — Spoofing, Tampering, Repudiation, Information disclosure, DoS, Elevation — against the mapped architecture.
+4. Per threat: the path (entry → boundary crossing → asset), the control that should stop it, and whether that control exists.
+5. Score each threat (Risk Scoring) and route: missing control = finding; weak control = verify with Exploitability Judge; control exists = record the defense.
+6. The model is a document (canvas + ledger), not a chat summary — it survives the session.
+
+## Evidence gates
+
+- assets, actors, and per-actor threats recorded
+- each threat has a named path and a named control (or its absence)
+- the model exists in the ledger before fixes are proposed
+
+## Anti-patterns
+
+- "Threat model" that is a bug list with extra headers
+- Modeling only the anonymous attacker (the authenticated user is the bigger surface)
+- Threats without paths ("data could be leaked" — through what?)
+
+## Example
+
+Threat: authenticated user reads another user's order. Path: /api/user?name= → SQL helper (string concat) → users table. Control: none (concat) + none (no per-user scoping). Two missing controls on one path = F1 Critical + F11 Medium as one design finding: the shared query helper needs parameterization AND ownership scoping — a design fix, not two patches.
+
+## Trust Boundary Mapper
+# Trust Boundary Mapper
+
+## What
+
+Zones the system into trusted / semi-trusted / untrusted regions, and marks every edge that crosses a zone. Trust boundaries are where the security analysis happens — everything else is interior detail.
+
+## Why
+
+Security work scattered evenly across a system is diluted; concentrated at boundaries it is decisive. Most real vulnerabilities are boundary-crossing failures: untrusted data entering a trusted zone without validation, or trusted behavior reachable from outside.
+
+## When
+
+Immediately after the Architecture Mapper. Every downstream gate (Boundary Gate, Auth/AuthZ Gate, Input/Output Gate) reads the zones.
+
+## Protocol
+
+1. Classify each mapped component:
+   - **Untrusted**: anything an attacker can reach directly (browser, client, public API surface, external webhooks).
+   - **Semi-trusted**: authenticated users, third-party integrations, other tenants.
+   - **Trusted**: internal services, the database layer, secrets storage.
+2. Mark every edge that crosses a zone with its direction and what travels on it.
+3. For each crossing: name the validation/serialization/authorization that should happen AT the boundary. Missing controls at a crossing = a finding candidate.
+4. Record the zones on the canvas — they are part of the architecture map, not a separate diagram.
+
+## Evidence gates
+
+- every component has a zone label
+- every zone-crossing edge is labeled with direction + payload
+- crossings without controls are recorded as finding candidates
+
+## Anti-patterns
+
+- Declaring everything trusted because "it's internal" (the attacker is usually already inside one zone)
+- Zoning by physical host instead of by what can be influenced (a public endpoint on the DB host is still untrusted)
+- Missing the semi-trusted tier (authenticated users are not friends — they are the threat model's largest surface)
+
+## Example
+
+Checkout app: browser = untrusted; authenticated API = semi-trusted; DB + worker = trusted. The map showed /api/cart (semi-trusted) reading straight from the DB with no per-user scoping — a crossing with a missing control, which became finding F11 (IDOR-ish) instead of hiding in "the API is fine".
 
 ## Convergence Engine
 # Convergence Engine

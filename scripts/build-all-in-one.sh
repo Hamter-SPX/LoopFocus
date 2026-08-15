@@ -23,7 +23,7 @@ OUT="$ROOT/LOOPFOCUS_ALL_IN_ONE.md"
   echo "---"
   echo
   echo "# Part 2 — Deep References (all systems)"
-  for f in "$ROOT"/references/state-machine.md "$ROOT"/references/gate-engine.md "$ROOT"/references/effort-elasticity.md "$ROOT"/references/dynamic-focus-depth.md "$ROOT"/references/skillfocus.md "$ROOT"/references/canvas.md "$ROOT"/references/predictive-analysis.md "$ROOT"/references/security-arch.md "$ROOT"/references/build-mode.md "$ROOT"/references/verification-and-claim-governance.md "$ROOT"/references/toolbus.md "$ROOT"/references/loop-control/*.md "$ROOT"/references/reasoning/*.md "$ROOT"/references/goal/*.md "$ROOT"/references/progress/*.md "$ROOT"/references/state-memory/*.md "$ROOT"/references/knowledge/*.md; do
+  for f in "$ROOT"/references/state-machine.md "$ROOT"/references/gate-engine.md "$ROOT"/references/effort-elasticity.md "$ROOT"/references/dynamic-focus-depth.md "$ROOT"/references/skillfocus.md "$ROOT"/references/canvas.md "$ROOT"/references/predictive-analysis.md "$ROOT"/references/security-arch.md "$ROOT"/references/build-mode.md "$ROOT"/references/verification-and-claim-governance.md "$ROOT"/references/toolbus.md "$ROOT"/references/security-arch/*.md "$ROOT"/references/loop-control/*.md "$ROOT"/references/reasoning/*.md "$ROOT"/references/goal/*.md "$ROOT"/references/progress/*.md "$ROOT"/references/state-memory/*.md "$ROOT"/references/knowledge/*.md; do
     echo
     echo "## $(basename "$f" .md | tr '-' ' ' | awk '{for(i=1;i<=NF;i++) sub(/./,toupper(substr($i,1,1)),$i)}1')"
     cat "$f"
